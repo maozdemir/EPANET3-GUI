@@ -2,29 +2,32 @@
 
 void GeneticAlgorithm::initializePopulation()
 {
-    dist = std::uniform_real_distribution<double>(0.0, 1.0);
+    DISTRIBUTION = std::uniform_real_distribution<double>(50.0, 150.0);
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        std::vector<double> individual;
         for (int j = 0; j < CHROMOSOME_LENGTH; j++)
         {
-            individual.push_back(dist(rng));
+            PIPE_POPULATION[i].roughness = (DISTRIBUTION(RNG));
         }
-        population.push_back(individual);
     }
 }
 
 double GeneticAlgorithm::calculateFitness(std::string inputFile, std::string outputFile)
 {
-    trigger_run(inputFile, outputFile);
     double fitness = 0;
+    std::vector<Result_Atakoy> result_atakoy_vector;
+    Parser::parseResultTxt("ak-Sonuc.txt", result_atakoy_vector);
     return fitness;
 }
 
 void GeneticAlgorithm::run()
 {
     initializePopulation();
-    calculateFitness("resources\\newInputFile.inp", "a.out");
+    PROJECT.pipes = PIPE_POPULATION;
+    printf("Project nodes: %d\n", PROJECT.nodes.size());
+    Saver::saveInputFile("resources\\ga_inp.inp", PROJECT);
+    trigger_run("resources\\ga_inp.inp", "a.out");
+    calculateFitness("resources\\ga_inp.inp", "a.out");
 }
 
 void GeneticAlgorithm::trigger_run(std::string inputFile, std::string outputFile)

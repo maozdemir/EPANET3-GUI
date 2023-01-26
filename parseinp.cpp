@@ -1,6 +1,6 @@
 #include "parseinp.h"
 
-void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Node> &nodes, std::vector<Pipe> &pipe_vector, Project &project)
+void Parser::parseInputFile(std::string inputFile, Project &project)
 {
     parsePatterns(project, inputFile);
     std::ifstream file(inputFile);
@@ -8,7 +8,6 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
     while (getline(file, line))
     {
         Helpers::trim(line);
-        // line = line.erase(line.find_last_not_of("\t\n\v\f\r ") + 1);
         if (line == "[TITLE]")
         {
             getline(file, line);
@@ -56,7 +55,6 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                 }
 
                 node.type = NodeType::JUNCTION;
-                nodes.push_back(node);
                 project.nodes.push_back(node);
             }
         }
@@ -93,7 +91,6 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                 }
 
                 node.type = NodeType::RESERVOIR;
-                nodes.push_back(node);
                 project.nodes.push_back(node);
             }
         }
@@ -112,9 +109,9 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                 std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
 
                 const char *id = tokens[0].c_str();
-                auto it = std::find_if(nodes.begin(), nodes.end(), [&id](const Node &n)
+                auto it = std::find_if(project.nodes.begin(), project.nodes.end(), [&id](const Node &n)
                                        { return n.id == id; });
-                if (it != nodes.end())
+                if (it != project.nodes.end())
                 {
                     it->x_coord = std::stod(tokens[1]);
                     it->y_coord = std::stod(tokens[2]);
@@ -139,13 +136,13 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                 const char *start_node = tokens[1].c_str();
                 const char *end_node = tokens[2].c_str();
 
-                auto it1 = std::find_if(nodes.begin(), nodes.end(), [&start_node](const Node &n)
+                auto it1 = std::find_if(project.nodes.begin(), project.nodes.end(), [&start_node](const Node &n)
                                         { return n.id == start_node; });
 
-                auto it2 = std::find_if(nodes.begin(), nodes.end(), [&end_node](const Node &n)
+                auto it2 = std::find_if(project.nodes.begin(), project.nodes.end(), [&end_node](const Node &n)
                                         { return n.id == end_node; });
 
-                if (it1 != nodes.end() && it2 != nodes.end())
+                if (it1 != project.nodes.end() && it2 != project.nodes.end())
                 {
                     double length = std::stod(tokens[3]);
                     double diameter = std::stod(tokens[4]);
@@ -159,7 +156,7 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                     ss_pipeid >> pipe_id;
 
                     Pipe pipe(&(*it1), &(*it2), pipe_id, line_type, length, diameter, roughness, minor_loss, status);
-                    pipe_vector.push_back(pipe);
+                    project.pipes.push_back(pipe);
                 }
             }
         }
@@ -182,10 +179,10 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
 
                 double coefficient = std::stod(tokens[1]);
 
-                auto it = std::find_if(nodes.begin(), nodes.end(), [&node](const Node &n)
+                auto it = std::find_if(project.nodes.begin(), project.nodes.end(), [&node](const Node &n)
                                        { return n.id == node; });
 
-                if (it != nodes.end())
+                if (it != project.nodes.end())
                 {
                     Emitter emitter;
                     emitter.junction = &(*it);
@@ -214,13 +211,13 @@ void Parser::parseInputFile(std::string inputFile, Title &title, std::vector<Nod
                 double __demand = std::stod(tokens[1]);
                 std::string pattern_id = tokens[2];
 
-                auto it_junction = std::find_if(nodes.begin(), nodes.end(), [&junction_id](const Node &n)
+                auto it_junction = std::find_if(project.nodes.begin(), project.nodes.end(), [&junction_id](const Node &n)
                                                 { return n.id == junction_id; });
 
                 auto it_pattern = std::find_if(project.patterns.begin(), project.patterns.end(), [&pattern_id](const Pattern &p)
                                                { return p.id == pattern_id; });
 
-                if (it_junction != nodes.end() && it_pattern != project.patterns.end())
+                if (it_junction != project.nodes.end() && it_pattern != project.patterns.end())
                 {
                     Demand _demand;
                     _demand.demand = __demand;
@@ -392,5 +389,38 @@ void Parser::parsePatterns(Project &project, std::string inputFile)
             }
             printf("Read %d patterns\n", (int)project.patterns.size());
         }
+    }
+}
+
+// !!! BAD IMPLEMENTATION !!!
+void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector)
+{
+    std::ifstream file(resultFile);
+    std::string line;
+    int ctr = 0;
+    getline(file, line); // Skip header line
+    while (getline(file, line))
+    {
+        Helpers::trim(line);
+        if (line[0] == ';')
+            continue;
+        if (line.empty() || ctr >= 24)
+            break;
+
+        std::istringstream iss(line);
+        std::vector<std::string> tokens;
+        std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
+        Result_Atakoy result_atakoy;
+        result_atakoy.Time = tokens[0];
+        result_atakoy.Inc_FR_ = std::stod(tokens[1]);
+        result_atakoy.ZB_FR_ = std::stod(tokens[2]);
+        result_atakoy.ZB_PRV_UPS_PRES_ = std::stod(tokens[3]);
+        result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stod(tokens[4]);;
+        result_atakoy.ZB_MAX_PRES_ = std::stod(tokens[5]);
+        result_atakoy.ZB_AVE_PRES_ = std::stod(tokens[6]);
+        result_atakoy.ZB_MIN_PRES_ = std::stod(tokens[7]);
+        result_atakoy.Leakage_ = std::stod(tokens[8]);
+        result_atakoy_vector.push_back(result_atakoy);
+        ctr++;
     }
 }

@@ -14,7 +14,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /subsystem:console")
 file(GLOB IMGUI_SOURCES "includes/imgui/*.cpp")
 file(GLOB IMPLOT_SOURCES "includes/implot/*.cpp")
 file(GLOB IMGUI_BACKEND_SOURCES "includes/imgui/backends/imgui_impl_win32.cpp" "includes/imgui/backends/imgui_impl_dx12.cpp")
-file(GLOB PROJECT_SOURCES "drawing.cpp" "parseinp.cpp" "views.cpp" "saveinp.cpp" "epanet-ga.cpp" "main.cpp")
+file(GLOB PROJECT_SOURCES "drawing.cpp" "parseinp.cpp" "views.cpp" "saveinp.cpp" "main.cpp")
 file(GLOB PROJECT_SOURCES_GA "parseinp.cpp" "saveinp.cpp" "epanet-ga.cpp" "main-ga.cpp")
 
 # Create executable

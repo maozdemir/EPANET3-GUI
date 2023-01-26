@@ -200,6 +200,7 @@ struct Project
     std::vector<Pattern> patterns;
     std::vector <Emitter> emitters;
     std::vector<Demand> demands;
+    std::vector<Pipe> pipes;
 };
 
 #endif

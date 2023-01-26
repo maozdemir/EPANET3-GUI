@@ -1,8 +1,8 @@
 #include "saveinp.h"
 
-void Saver::saveInputFile(std::string saveFile, Title &title, std::vector<Node> &nodes, std::vector<Pipe> &line_arg, Project &project)
+void Saver::saveInputFile(std::string saveFile, Project &project)
 {
-    std::ofstream outputFile("resources\\newInputFile.inp");
+    std::ofstream outputFile(saveFile);
 
     outputFile << "[TITLE]" << std::endl;
     outputFile << "Scenario: " << project.title.scenario << std::endl;
@@ -66,7 +66,7 @@ void Saver::saveInputFile(std::string saveFile, Title &title, std::vector<Node> 
                << std::left << std::setw(20) << "Roughness"
                << std::left << std::setw(20) << "MinorLoss"
                << std::left << std::setw(20) << "Status" << std::endl;
-    for (auto &pipe : line_arg)
+    for (auto &pipe : project.pipes)
     {
         outputFile << std::left << std::setw(20) << pipe.id
                    << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.start->id
@@ -396,7 +396,7 @@ void Saver::saveInputFile(std::string saveFile, Title &title, std::vector<Node> 
                << std::left << std::setw(20) << "Y-Coord"
                << std::endl;
 
-    for (auto &node : nodes)
+    for (auto &node : project.nodes)
     {
 
         outputFile << std::left << std::setw(20) << node.id

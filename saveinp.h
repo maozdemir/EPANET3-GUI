@@ -1,4 +1,5 @@
-
+#ifndef SAVEINP_H
+#define SAVEINP_H
 #include "structs.h"
 #include <fstream>
 #include <sstream>
@@ -11,7 +12,8 @@
 class Saver
 {
 public:
-    static void saveInputFile(std::string saveFile, Title &title, std::vector<Node> &nodes,std::vector<Pipe> &line_arg, Project &project);
+    static void saveInputFile(std::string saveFile, Project &project);
 private:
     static void generate_coordinates(Node &node);
 };
+#endif

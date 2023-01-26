@@ -69,13 +69,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // Main code
 int main(int, char **)
 {
-    Title title;
-    std::vector<Node> nodes;
-    std::vector<Pipe> pipe_vector;
     Project project;
-    Parser::parseInputFile("EPA3-hk-large-peaked-intermediate.inp", title, nodes, pipe_vector, project);
-    printf("NODES SIZE= %d\n", nodes.size());
-    printf("LINES SIZE= %d\n", pipe_vector.size());
+    Parser::parseInputFile("EPA3-hk-large-peaked-intermediate.inp", project);
+    printf("NODES SIZE= %d\n", project.nodes.size());
+    printf("LINES SIZE= %d\n", project.pipes.size());
     printf("FLOW UNIT ENUM= %d\n", project.options.flow_unit);
     WNDCLASSEXW wc = {sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"EPANET3-TEST", NULL};
     ::RegisterClassExW(&wc);
@@ -145,15 +142,15 @@ int main(int, char **)
     std::vector<Pipe> lines;
     // Main loop
     bool done = false;
-    Saver::saveInputFile("EPA3-hk-large-peaked-intermediate_SAVED.inp", title, nodes, pipe_vector, project);
-    GeneticAlgorithm ga;
+    Saver::saveInputFile("EPA3-hk-large-peaked-intermediate_SAVED.inp", project);
+    //GeneticAlgorithm ga;
     //ga.run();
 
-    GeneticAlgorithm *ga_ptr = &ga;
+    //GeneticAlgorithm *ga_ptr = &ga;
 
-    std::thread thread1(&GeneticAlgorithm::run, ga_ptr);
+    //std::thread thread1(&GeneticAlgorithm::run, ga_ptr);
     //thread1.join();
-    thread1.detach();
+    //thread1.detach();
 
     while (!done)
     {
@@ -353,13 +350,13 @@ int main(int, char **)
                     if (ImGui::BeginListBox("##item_sel", ImVec2(-FLT_MIN, 20 * ImGui::GetTextLineHeightWithSpacing())))
                     {
 
-                        for (int n = 0; std::cmp_less(n, nodes.size()); n++)
+                        for (int n = 0; std::cmp_less(n, project.nodes.size()); n++)
                         {
 
                             // if (nodes[n].type == NodeType::JUNCTION)
                             {
                                 bool is_selected = (prop_window_selected_node == n);
-                                if (ImGui::Selectable(nodes[n].id.c_str(), is_selected))
+                                if (ImGui::Selectable(project.nodes[n].id.c_str(), is_selected))
                                     prop_window_selected_node = n;
                                 if (is_selected)
                                     ImGui::SetItemDefaultFocus();
@@ -372,13 +369,13 @@ int main(int, char **)
                 {
                     if (ImGui::BeginListBox("##item_sel", ImVec2(-FLT_MIN, 20 * ImGui::GetTextLineHeightWithSpacing())))
                     {
-                        for (int n = 0; std::cmp_less(n , pipe_vector.size()); n++)
+                        for (int n = 0; std::cmp_less(n , project.pipes.size()); n++)
                         {
-                            if (pipe_vector[n].lineType == LineType::PIPE)
+                            if (project.pipes[n].lineType == LineType::PIPE)
                             {
                                 bool is_selected = (prop_window_selected_pipe == n);
                                 char *label;
-                                sprintf_s(label,50, "##pipe-%s", std::to_string(pipe_vector[n].id).c_str());
+                                sprintf_s(label,50, "##pipe-%s", std::to_string(project.pipes[n].id).c_str());
                                 if (ImGui::Selectable(label, is_selected))
                                     prop_window_selected_pipe = n;
                                 if (is_selected)
@@ -443,7 +440,7 @@ int main(int, char **)
         {
             if (ImGui::Begin("Pipe Properties"))
             {
-                if (prop_window_selected_pipe >= 0 && std::cmp_less(prop_window_selected_pipe, nodes.size()))
+                if (prop_window_selected_pipe >= 0 && std::cmp_less(prop_window_selected_pipe, project.nodes.size()))
                 {
                     ImGui::BeginTable("##pipe_props", 2);
                     ImGui::TableSetupColumn("Property");
@@ -453,41 +450,41 @@ int main(int, char **)
                     ImGui::TableNextColumn();
                     ImGui::Text("ID");
                     ImGui::TableNextColumn();
-                    int id = pipe_vector[prop_window_selected_pipe].id;
+                    int id = project.pipes[prop_window_selected_pipe].id;
                     if (ImGui::InputInt("##id", &id))
-                        pipe_vector[prop_window_selected_pipe].id = id;
+                        project.pipes[prop_window_selected_pipe].id = id;
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                     ImGui::Text("Length");
                     ImGui::TableNextColumn();
-                    double length = pipe_vector[prop_window_selected_pipe].length;
+                    double length = project.pipes[prop_window_selected_pipe].length;
                     if (ImGui::InputDouble("##len", &length))
-                        pipe_vector[prop_window_selected_pipe].length = length;
+                        project.pipes[prop_window_selected_pipe].length = length;
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                     ImGui::Text("Diameter");
                     ImGui::TableNextColumn();
-                    double diameter = pipe_vector[prop_window_selected_pipe].diameter;
+                    double diameter = project.pipes[prop_window_selected_pipe].diameter;
                     if (ImGui::InputDouble("##dia", &diameter))
-                        pipe_vector[prop_window_selected_pipe].diameter = diameter;
+                        project.pipes[prop_window_selected_pipe].diameter = diameter;
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                     ImGui::Text("Roughness");
                     ImGui::TableNextColumn();
-                    double roughness = pipe_vector[prop_window_selected_pipe].roughness;
+                    double roughness = project.pipes[prop_window_selected_pipe].roughness;
                     if (ImGui::InputDouble("##roughness", &roughness))
-                        pipe_vector[prop_window_selected_pipe].roughness = roughness;
+                        project.pipes[prop_window_selected_pipe].roughness = roughness;
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
                     ImGui::Text("Minor Loss");
                     ImGui::TableNextColumn();
-                    double minor_loss = pipe_vector[prop_window_selected_pipe].minor_loss;
+                    double minor_loss = project.pipes[prop_window_selected_pipe].minor_loss;
                     if (ImGui::InputDouble("##min_loss", &minor_loss))
-                        pipe_vector[prop_window_selected_pipe].minor_loss = minor_loss;
+                        project.pipes[prop_window_selected_pipe].minor_loss = minor_loss;
 
                     ImGui::EndTable();
                 }
@@ -565,9 +562,9 @@ int main(int, char **)
                             double JUNCTION_RADIUS = 7.5;
                             if (ImGui::IsMouseClicked(0))
                             {
-                                for (int i = 0; std::cmp_less(i,nodes.size()); i++)
+                                for (int i = 0; std::cmp_less(i,project.nodes.size()); i++)
                                 {
-                                    ImVec2 node_coords = ImVec2(nodes[i].x_coord, nodes[i].y_coord);
+                                    ImVec2 node_coords = ImVec2(project.nodes[i].x_coord, project.nodes[i].y_coord);
                                     ImVec2 node_pixels = ImPlot::PlotToPixels(node_coords);
                                     int junction_circle_radius = 10;
                                     ImVec2 mouse_position = ImGui::GetMousePos();
@@ -585,7 +582,7 @@ int main(int, char **)
                                         else
                                         {
 
-                                            pipe_vector.push_back(Pipe(&nodes[SELECTOR_FIRST_ELEMENT_POSITION], &nodes[i], (int)(lines.size() - 1), LineType::PIPE, 0, 0, 0, 0, PipeStatus::OPEN));
+                                            project.pipes.push_back(Pipe(&project.nodes[SELECTOR_FIRST_ELEMENT_POSITION], &project.nodes[i], (int)(lines.size() - 1), LineType::PIPE, 0, 0, 0, 0, PipeStatus::OPEN));
 
                                             break;
                                         }
@@ -600,18 +597,18 @@ int main(int, char **)
                     {
                         Drawing::draw_circle_plotter(ImPlot::GetPlotDrawList(), ImPlot::PlotToPixels(ImPlotPoint(ImVec2(junctionVector[i].x, junctionVector[i].y))));
                     }
-                    for (int i = 0; std::cmp_less(i , nodes.size()); i++)
+                    for (int i = 0; std::cmp_less(i , project.nodes.size()); i++)
                     {
-                        if (nodes[i].type == NodeType::JUNCTION)
+                        if (project.nodes[i].type == NodeType::JUNCTION)
                         {
-                            ImPlot::PlotScatter("Junctions", new double[1]{nodes[i].x_coord}, new double[1]{nodes[i].y_coord}, 1);
-                            Drawing::draw_circle_plotter(ImPlot::GetPlotDrawList(), ImPlot::PlotToPixels(ImPlotPoint(ImVec2(nodes[i].x_coord, nodes[i].y_coord))));
+                            ImPlot::PlotScatter("Junctions", new double[1]{project.nodes[i].x_coord}, new double[1]{project.nodes[i].y_coord}, 1);
+                            Drawing::draw_circle_plotter(ImPlot::GetPlotDrawList(), ImPlot::PlotToPixels(ImPlotPoint(ImVec2(project.nodes[i].x_coord, project.nodes[i].y_coord))));
                         }
                     }
 
-                    for (int i = 0; std::cmp_less(i,pipe_vector.size()); i++)
+                    for (int i = 0; std::cmp_less(i,project.pipes.size()); i++)
                     {
-                        Drawing::draw_line(ImPlot::GetPlotDrawList(), pipe_vector[i]);
+                        Drawing::draw_line(ImPlot::GetPlotDrawList(), project.pipes[i]);
                     }
 
                     Drawing::drawSquare(ImPlot::GetPlotDrawList(), ImPlot::PlotToPixels(ImPlotPoint(ImVec2(0, 0))), 50, true);

@@ -1,4 +1,4 @@
-
+#include "struct_atakoy.h"
 #include "structs.h"
 #include <fstream>
 #include <sstream>
@@ -11,8 +11,10 @@
 class Parser
 {
 public:
-    static void parseInputFile(std::string inputFile, Title &title, std::vector<Node> &nodes, std::vector<Pipe> &line_arg, Project &project);
-
+    static void parseInputFile(std::string inputFile, Project &project);
+    // !!! IMPROPER, PURPOSE SPECIFIC FUNCTION  BEGINS  !!!
+    static void parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector);
+    // !!! IMPROPER, PURPOSE SPECIFIC FUNCTION ENDS     !!!
 private:
     static void parsePatterns(Project &project, std::string inputFile);
 };
