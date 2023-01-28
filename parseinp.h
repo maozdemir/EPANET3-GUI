@@ -1,3 +1,5 @@
+#ifndef PARSEINP_H
+#define PARSEINP_H
 #include "struct_atakoy.h"
 #include "structs.h"
 #include <fstream>
@@ -18,3 +20,4 @@ public:
 private:
     static void parsePatterns(Project &project, std::string inputFile);
 };
+#endif
