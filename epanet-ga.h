@@ -19,13 +19,15 @@ public:
     int POPULATION_SIZE = 20;
     int CHROMOSOME_LENGTH = 100;
     double MUTATION_RATE = 0.01;
-    int MAX_RUNS = 20;
+    int MAX_RUNS = 1;
     std::vector<double> FITNESS;
 
     Project first_individual;
     std::vector<Project> population;
     std::mt19937 RNG;
     std::uniform_real_distribution<double> DISTRIBUTION;
+
+    std::vector <Result_Atakoy> observed_atakoy_vector;
 
     void set_chromosome_length(int i)
     {
@@ -46,6 +48,8 @@ public:
         set_chromosome_length(project.pipes.size());
     }
     void mutate();
+    std::vector<Project> parent_selection_tournament();
+    void crossover();
 
     void forEachIndividual(int i);
 
@@ -54,7 +58,7 @@ public:
     }
 
     void initializePopulation();
-    double calculateFitness();
+    void calculateFitness();
     void trigger_run(std::string inputFile, std::string outputFile);
     void run();
 };

@@ -3,6 +3,10 @@
 void GeneticAlgorithm::initializePopulation()
 {
     DISTRIBUTION = std::uniform_real_distribution<double>(50.0, 150.0);
+    Parser::parseResultTxt("res.txt", observed_atakoy_vector);
+    FITNESS.reserve(POPULATION_SIZE);
+    FITNESS.resize(POPULATION_SIZE);
+
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
         population.push_back(first_individual);
@@ -13,12 +17,25 @@ void GeneticAlgorithm::initializePopulation()
     }
 }
 
-double GeneticAlgorithm::calculateFitness()
+void GeneticAlgorithm::calculateFitness()
 {
-    double fitness = 0;
-    std::vector<Result_Atakoy> result_atakoy_vector;
-    Parser::parseResultTxt("ak-Sonuc.txt", result_atakoy_vector);
-    return fitness;
+    for (int i = 0; i < POPULATION_SIZE; i++)
+    {
+        double fitness = 0;
+        double error = 0;
+        char resultFile[100] = "";
+        sprintf_s(resultFile, "resources\\result_%d.txt", i);
+        std::vector<Result_Atakoy> result_atakoy_vector;
+        Parser::parseResultTxt(resultFile, result_atakoy_vector);
+        // Calculate the MAE between simulated and observed results
+        for (int j = 0; j < observed_atakoy_vector.size(); j++)
+        {
+            error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
+        }
+        fitness = error / observed_atakoy_vector.size();
+        FITNESS[i] = fitness;
+        printf("[ -- %d -- ] - CALCULATED FITNESS: %f\n", i, fitness);
+    }
 }
 void GeneticAlgorithm::threader()
 {
@@ -62,6 +79,40 @@ void GeneticAlgorithm::forEachIndividual(int i)
     trigger_run(fileName, result);
 }
 
+std::vector<Project> GeneticAlgorithm::parent_selection_tournament()
+{
+    std::vector<Project> parents;
+
+    for (int i = 0; i < POPULATION_SIZE; i++)
+    {
+        int idx1 = rand() % POPULATION_SIZE;
+        int idx2 = rand() % POPULATION_SIZE;
+
+        Project parent = FITNESS[idx1] > FITNESS[idx2] ? population[idx1] : population[idx2];
+
+        parents.push_back(parent);
+    }
+
+    return parents;
+}
+
+/*void GeneticAlgorithm::crossover()
+{
+    std::uniform_int_distribution<int> distribution(0, CHROMOSOME_LENGTH - 1);
+    int crossoverPoint = distribution(RNG);
+    for (int i = 0; i < crossoverPoint; i++)
+    {
+        child1.pipes[i] = parent1.pipes[i];
+        child2.pipes[i] = parent2.pipes[i];
+    }
+
+    for (int i = crossoverPoint; i < CHROMOSOME_LENGTH; i++)
+    {
+        child1.pipes[i] = parent2.pipes[i];
+        child2.pipes[i] = parent1.pipes[i];
+    }
+}*/
+
 void GeneticAlgorithm::run()
 {
     initializePopulation();
@@ -69,9 +120,8 @@ void GeneticAlgorithm::run()
     while (num_runs < MAX_RUNS)
     {
         threader();
+        printf("Ran for %d/%d runs\n", num_runs + 1, MAX_RUNS);
         calculateFitness();
-        mutate();
-        printf("Ran for %d/%d runs\n", num_runs+1, MAX_RUNS);
         num_runs++;
     }
 }

@@ -402,8 +402,6 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
     while (getline(file, line))
     {
         Helpers::trim(line);
-        if (line[0] == ';')
-            continue;
         if (line.empty() || ctr >= 24)
             break;
 
@@ -417,12 +415,12 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
             result_atakoy.Inc_FR_ = std::stod(tokens[1]);
             result_atakoy.ZB_FR_ = std::stod(tokens[2]);
             result_atakoy.ZB_PRV_UPS_PRES_ = std::stod(tokens[3]);
-            result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stod(tokens[4]);
+            /*result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stod(tokens[4]);
 
             result_atakoy.ZB_MAX_PRES_ = std::stod(tokens[5]);
             result_atakoy.ZB_AVE_PRES_ = std::stod(tokens[6]);
             result_atakoy.ZB_MIN_PRES_ = std::stod(tokens[7]);
-            result_atakoy.Leakage_ = std::stod(tokens[8]);
+            result_atakoy.Leakage_ = std::stod(tokens[8]);*/
             result_atakoy_vector.push_back(result_atakoy);
         }
         catch (std::exception)
