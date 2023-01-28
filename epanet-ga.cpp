@@ -56,8 +56,8 @@ void GeneticAlgorithm::forEachIndividual(int i)
 {
     char fileName[100] = "";
     char result[100] = "";
-    sprintf(fileName, "resources\\ga_inp_%d.inp", i);
-    sprintf(result, "resources\\result_%d.txt", i);
+    sprintf_s(fileName, "resources\\ga_inp_%d.inp", i);
+    sprintf_s(result, "resources\\result_%d.txt", i);
     Saver::saveInputFile(fileName, population[i]);
     trigger_run(fileName, result);
 }
