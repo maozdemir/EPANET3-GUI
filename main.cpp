@@ -21,6 +21,7 @@
 #include "views.h"
 #include "epanet-ga.h"
 
+
 #ifdef _DEBUG
 #define DX12_ENABLE_DEBUG_LAYER
 #endif
@@ -458,7 +459,7 @@ int main(int, char **)
                     ImGui::TableNextColumn();
                     ImGui::Text("Length");
                     ImGui::TableNextColumn();
-                    double length = project.pipes[prop_window_selected_pipe].length;
+                    double length = (double)project.pipes[prop_window_selected_pipe].length;
                     if (ImGui::InputDouble("##len", &length))
                         project.pipes[prop_window_selected_pipe].length = length;
 
@@ -466,7 +467,7 @@ int main(int, char **)
                     ImGui::TableNextColumn();
                     ImGui::Text("Diameter");
                     ImGui::TableNextColumn();
-                    double diameter = project.pipes[prop_window_selected_pipe].diameter;
+                    double diameter = (double)project.pipes[prop_window_selected_pipe].diameter;
                     if (ImGui::InputDouble("##dia", &diameter))
                         project.pipes[prop_window_selected_pipe].diameter = diameter;
 
@@ -474,7 +475,7 @@ int main(int, char **)
                     ImGui::TableNextColumn();
                     ImGui::Text("Roughness");
                     ImGui::TableNextColumn();
-                    double roughness = project.pipes[prop_window_selected_pipe].roughness;
+                    double roughness = (double)project.pipes[prop_window_selected_pipe].roughness;
                     if (ImGui::InputDouble("##roughness", &roughness))
                         project.pipes[prop_window_selected_pipe].roughness = roughness;
 
@@ -482,7 +483,7 @@ int main(int, char **)
                     ImGui::TableNextColumn();
                     ImGui::Text("Minor Loss");
                     ImGui::TableNextColumn();
-                    double minor_loss = project.pipes[prop_window_selected_pipe].minor_loss;
+                    double minor_loss = (double)project.pipes[prop_window_selected_pipe].minor_loss;
                     if (ImGui::InputDouble("##min_loss", &minor_loss))
                         project.pipes[prop_window_selected_pipe].minor_loss = minor_loss;
 
@@ -512,7 +513,7 @@ int main(int, char **)
 
                         /*if (IS_VALVE_SELECTED && ImGui::IsMouseClicked(0))
                         {
-                            double JUNCTION_RADIUS = 7.5;
+                            long double JUNCTION_RADIUS = 7.5;
                             if (ImGui::IsMouseClicked(0))
                             {
                                 for (int i = 0; i < nodes.size(); i++)
@@ -521,8 +522,8 @@ int main(int, char **)
                                     ImVec2 node_pixels = ImPlot::PlotToPixels(node_coords);
                                     int junction_circle_radius = 10;
                                     ImVec2 mouse_position = ImGui::GetMousePos();
-                                    double x_coord = mouse_position.x;
-                                    double y_coord = mouse_position.y;
+                                    long double x_coord = mouse_position.x;
+                                    long double y_coord = mouse_position.y;
                                     ;
                                     float distance = sqrt((x_coord - node_pixels.x) * (x_coord - node_pixels.x) + (y_coord - node_pixels.y) * (y_coord - node_pixels.y));
                                     if (distance < junction_circle_radius)
@@ -559,7 +560,7 @@ int main(int, char **)
                         }
                         if (IS_LINE_DRAWING_SELECTED)
                         {
-                            double JUNCTION_RADIUS = 7.5;
+                            long double JUNCTION_RADIUS = 7.5;
                             if (ImGui::IsMouseClicked(0))
                             {
                                 for (int i = 0; std::cmp_less(i,project.nodes.size()); i++)
@@ -568,8 +569,8 @@ int main(int, char **)
                                     ImVec2 node_pixels = ImPlot::PlotToPixels(node_coords);
                                     int junction_circle_radius = 10;
                                     ImVec2 mouse_position = ImGui::GetMousePos();
-                                    double x_coord = mouse_position.x;
-                                    double y_coord = mouse_position.y;
+                                    long double x_coord = mouse_position.x;
+                                    long double y_coord = mouse_position.y;
 
                                     float distance = sqrt((x_coord - node_pixels.x) * (x_coord - node_pixels.x) + (y_coord - node_pixels.y) * (y_coord - node_pixels.y));
                                     if (distance < junction_circle_radius)
@@ -601,7 +602,7 @@ int main(int, char **)
                     {
                         if (project.nodes[i].type == NodeType::JUNCTION)
                         {
-                            ImPlot::PlotScatter("Junctions", new double[1]{project.nodes[i].x_coord}, new double[1]{project.nodes[i].y_coord}, 1);
+                            ImPlot::PlotScatter("Junctions", new double[1]{(double)project.nodes[i].x_coord}, new double[1]{(double)project.nodes[i].y_coord}, 1);
                             Drawing::draw_circle_plotter(ImPlot::GetPlotDrawList(), ImPlot::PlotToPixels(ImPlotPoint(ImVec2(project.nodes[i].x_coord, project.nodes[i].y_coord))));
                         }
                     }
@@ -615,8 +616,8 @@ int main(int, char **)
 
                     ImVec2 plot_size = ImPlot::GetPlotSize();
                     ImPlotRect plotLimits = ImPlot::GetPlotLimits();
-                    double diff_y = abs(plotLimits.Min().y - plotLimits.Max().y);
-                    double diff_x = abs(plotLimits.Min().x - plotLimits.Max().x);
+                    long double diff_y = abs(plotLimits.Min().y - plotLimits.Max().y);
+                    long double diff_x = abs(plotLimits.Min().x - plotLimits.Max().x);
                     ZOOM_LEVEL = round(max(plot_size.x / diff_x, plot_size.y / diff_y));
 
                     for (int i = 0; std::cmp_less(i,annotationVector.size()); i++)

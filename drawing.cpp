@@ -16,15 +16,16 @@ void Drawing::draw_valve()
     pDrawList->AddTriangle(ImVec2(x + sz * 0.5f, y), ImVec2(x, y + sz * 0.5f), ImVec2(x + sz * 0.5f, y + sz - 0.5f), col, th); // ust,sol,alt
 }
 
-
-void Drawing::drawSquare(ImDrawList* drawList, ImVec2 center, double size, bool is_blinking)
+void Drawing::drawSquare(ImDrawList *drawList, ImVec2 center, double size, bool is_blinking)
 {
     static ImVec4 colf = ImVec4(0, 0, 0, 3.0f);
     static clock_t last_time = 0;
     clock_t current_time = clock();
-    if (is_blinking) {
+    if (is_blinking)
+    {
         double time_elapsed = (current_time - last_time) / (double)CLOCKS_PER_SEC;
-        if (time_elapsed >= 0.25) {
+        if (time_elapsed >= 0.25)
+        {
             colf.x = 1 - colf.x;
             colf.y = 1 - colf.y;
             colf.z = 1 - colf.z;
@@ -36,20 +37,17 @@ void Drawing::drawSquare(ImDrawList* drawList, ImVec2 center, double size, bool 
     ImVec2 midLeft = ImVec2(center.x - size / 2, center.y);
     ImVec2 topRight = ImVec2(center.x + size / 2, center.y - size / 2);
     ImVec2 midRight = ImVec2(center.x + size / 2, center.y);
-    ImVec2 bottomRight = ImVec2(center.x + thickness/2 + size / 2, center.y + size / 2);
+    ImVec2 bottomRight = ImVec2(center.x + thickness / 2 + size / 2, center.y + size / 2);
 
     ImU32 color = ImColor(colf);
 
     ImPlot::PushPlotClipRect();
-    drawList->AddLine(topLeft,midLeft, color, thickness);
-    drawList->AddLine(topRight,midRight, color, thickness);
-    drawList->AddRect(midLeft, bottomRight, color,0,0,thickness);
+    drawList->AddLine(topLeft, midLeft, color, thickness);
+    drawList->AddLine(topRight, midRight, color, thickness);
+    drawList->AddRect(midLeft, bottomRight, color, 0, 0, thickness);
     drawList->AddRectFilled(midLeft, bottomRight, color);
     ImPlot::PopPlotClipRect();
 }
-
-
-
 
 void Drawing::draw_valve_plotter(ImDrawList *drawList, ImVec2 coords, double angle)
 {
@@ -117,28 +115,28 @@ void Drawing::draw_tank()
 void Drawing::draw_line(ImDrawList *drawList, Pipe line)
 {
     std::string id_str = std::to_string(line.id);
-    const char* id_cstr = id_str.c_str();
+    const char *id_cstr = id_str.c_str();
     ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 1.0f);
-    static ImVec4 colf = ImVec4(0.0f, 0.0f, 0.0f,255.0f);
+    static ImVec4 colf = ImVec4(0.0f, 0.0f, 0.0f, 255.0f);
     ImPlot::PushStyleColor(ImPlotCol_Line, colf);
-    std::vector<double> x{line.start->x_coord, line.end->x_coord};
-    std::vector<double> y{line.start->y_coord, line.end->y_coord};
+    std::vector<double> x{(double)line.start->x_coord, (double)line.end->x_coord};
+    std::vector<double> y{(double)line.start->y_coord, (double)line.end->y_coord};
 
     switch (line.lineType)
     {
-        case LineType::PUMP:
-            // Draw the pump symbol at the center point of the line
-            ImPlot::PlotLine("Line 2", x.data(),y.data(),x.size());
-            break;
-        case LineType::PIPE:
-            // Draw the pipe symbol at the center point of the line
-            ImPlot::PlotLine("Line 2", x.data(),y.data(),x.size());
-            break;
-        case LineType::VALVE:
-            // Draw the rotated valve symbol parallel to the line
-            draw_valve_plotter(drawList, ImPlot::PlotToPixels(ImPlotPoint(line.getCenterPoint())), line.getAngle());
-            ImPlot::PlotLine("Line 2", x.data(),y.data(),x.size());
-            break;
+    case LineType::PUMP:
+        // Draw the pump symbol at the center point of the line
+        ImPlot::PlotLine("Line 2", x.data(), y.data(), x.size());
+        break;
+    case LineType::PIPE:
+        // Draw the pipe symbol at the center point of the line
+        ImPlot::PlotLine("Line 2", x.data(), y.data(), x.size());
+        break;
+    case LineType::VALVE:
+        // Draw the rotated valve symbol parallel to the line
+        draw_valve_plotter(drawList, ImPlot::PlotToPixels(ImPlotPoint(line.getCenterPoint())), line.getAngle());
+        ImPlot::PlotLine("Line 2", x.data(), y.data(), x.size());
+        break;
     }
 
     ImPlot::PopStyleVar();

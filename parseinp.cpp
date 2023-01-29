@@ -39,8 +39,8 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
 
                 Node node;
                 node.id = tokens[0];
-                node.elevation = std::stod(tokens[1]);
-                node.demand = std::stod(tokens[2]);
+                node.elevation = std::stold(tokens[1]);
+                node.demand = std::stold(tokens[2]);
                 try
                 {
                     node.pattern = tokens[3];
@@ -75,7 +75,7 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
 
                 Node node;
                 node.id = tokens[0].c_str();
-                node.head = std::stod(tokens[1]);
+                node.head = std::stold(tokens[1]);
                 printf("TOKEN0: %s, TOKEN1: %s, TOKEN2: %s\n", tokens[0].c_str(), tokens[1].c_str(), tokens[2].c_str());
                 try
                 {
@@ -113,8 +113,8 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                                        { return n.id == id; });
                 if (it != project.nodes.end())
                 {
-                    it->x_coord = std::stod(tokens[1]);
-                    it->y_coord = std::stod(tokens[2]);
+                    it->x_coord = std::stold(tokens[1]);
+                    it->y_coord = std::stold(tokens[2]);
                 }
             }
         }
@@ -144,10 +144,10 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
 
                 if (it1 != project.nodes.end() && it2 != project.nodes.end())
                 {
-                    double length = std::stod(tokens[3]);
-                    double diameter = std::stod(tokens[4]);
-                    double roughness = std::stod(tokens[5]);
-                    double minor_loss = std::stod(tokens[6]);
+                    long double length = std::stold(tokens[3]);
+                    long double diameter = std::stold(tokens[4]);
+                    long double roughness = std::stold(tokens[5]);
+                    long double minor_loss = std::stold(tokens[6]);
                     PipeStatus status = (tokens[7] == "Open") ? PipeStatus::OPEN : PipeStatus::CLOSED;
                     LineType line_type = LineType::PIPE;
 
@@ -177,7 +177,7 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
 
                 const char *node = tokens[0].c_str();
 
-                double coefficient = std::stod(tokens[1]);
+                long double coefficient = std::stold(tokens[1]);
 
                 auto it = std::find_if(project.nodes.begin(), project.nodes.end(), [&node](const Node &n)
                                        { return n.id == node; });
@@ -208,7 +208,7 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
 
                 std::string junction_id = tokens[0];
-                double __demand = std::stod(tokens[1]);
+                long double __demand = std::stold(tokens[1]);
                 std::string pattern_id = tokens[2];
 
                 auto it_junction = std::find_if(project.nodes.begin(), project.nodes.end(), [&junction_id](const Node &n)
@@ -311,11 +311,11 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 }
                 if (option == "Specific_Gravity")
                 {
-                    options.specific_gravity = std::stod(tokens[1].c_str());
+                    options.specific_gravity = std::stold(tokens[1].c_str());
                 }
                 if (option == "Specific_Viscosity")
                 {
-                    options.specific_viscosity = std::stod(tokens[1].c_str());
+                    options.specific_viscosity = std::stold(tokens[1].c_str());
                 }
                 if (option == "Maximum_Trials")
                 {
@@ -361,7 +361,7 @@ void Parser::parsePatterns(Project &project, std::string inputFile)
                     {
                         try
                         {
-                            (*it).multipliers.push_back(std::stod(tokens[token]));
+                            (*it).multipliers.push_back(std::stold(tokens[token]));
                         }
                         catch (...)
                         {
@@ -370,12 +370,12 @@ void Parser::parsePatterns(Project &project, std::string inputFile)
                 }
                 else
                 {
-                    std::vector<double> multipliers;
+                    std::vector<long double> multipliers;
                     for (int token = 1; std::cmp_less(token, tokens.size()); ++token)
                     {
                         try
                         {
-                            multipliers.push_back(std::stod(tokens[token]));
+                            multipliers.push_back(std::stold(tokens[token]));
                         }
                         catch (...)
                         {
@@ -412,15 +412,15 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
         result_atakoy.Time = tokens[0];
         try
         {
-            result_atakoy.Inc_FR_ = std::stod(tokens[1]);
-            result_atakoy.ZB_FR_ = std::stod(tokens[2]);
-            result_atakoy.ZB_PRV_UPS_PRES_ = std::stod(tokens[3]);
-            /*result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stod(tokens[4]);
+            result_atakoy.Inc_FR_ = std::stold(tokens[1]);
+            result_atakoy.ZB_FR_ = std::stold(tokens[2]);
+            result_atakoy.ZB_PRV_UPS_PRES_ = std::stold(tokens[3]);
+            /*result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stold(tokens[4]);
 
-            result_atakoy.ZB_MAX_PRES_ = std::stod(tokens[5]);
-            result_atakoy.ZB_AVE_PRES_ = std::stod(tokens[6]);
-            result_atakoy.ZB_MIN_PRES_ = std::stod(tokens[7]);
-            result_atakoy.Leakage_ = std::stod(tokens[8]);*/
+            result_atakoy.ZB_MAX_PRES_ = std::stold(tokens[5]);
+            result_atakoy.ZB_AVE_PRES_ = std::stold(tokens[6]);
+            result_atakoy.ZB_MIN_PRES_ = std::stold(tokens[7]);
+            result_atakoy.Leakage_ = std::stold(tokens[8]);*/
             result_atakoy_vector.push_back(result_atakoy);
         }
         catch (std::exception)

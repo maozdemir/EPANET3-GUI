@@ -26,9 +26,11 @@ struct Individual
 class GeneticAlgorithm
 {
 public:
-    int POPULATION_SIZE = 20;
+    int POPULATION_SIZE = 100;
     int CHROMOSOME_LENGTH_PIPES = 100;
     int CHROMOSOME_LENGTH_EMITTERS = 100;
+    int CHROMOSOME_LENGTH_DEMANDS = 100;
+    int CHROMOSOME_LENGTH_NODE_DEMANDS = 100;
     double MUTATION_RATE = 0.1;
     double ELITISM_RATE = 0.2;
     int MAX_RUNS = 30;
@@ -43,6 +45,8 @@ public:
     std::mt19937 RNG;
     std::uniform_real_distribution<double> DISTRIBUTION_ROUGHNESS;
     std::uniform_real_distribution<double> DISTRIBUTION_EMITTER;
+    std::uniform_real_distribution<double> DISTRIBUTION_DEMAND;
+    std::uniform_real_distribution<double> DISTRIBUTION_NODE_DEMAND;
     std::uniform_real_distribution<double> DISTRIBUTION_MUTATION = std::uniform_real_distribution<double>(0.0, 1.0);
 
     std::vector<Result_Atakoy> observed_atakoy_vector;
@@ -67,6 +71,8 @@ public:
         this->first_individual = individual_project;
         this->CHROMOSOME_LENGTH_PIPES = project.pipes.size();
         this->CHROMOSOME_LENGTH_EMITTERS = project.emitters.size();
+        this->CHROMOSOME_LENGTH_DEMANDS = project.demands.size();
+        this->CHROMOSOME_LENGTH_NODE_DEMANDS = project.nodes.size();
     }
     void mutate();
     std::vector<Individual> parent_selection_tournament();

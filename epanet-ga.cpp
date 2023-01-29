@@ -1,9 +1,20 @@
 #include "epanet-ga.h"
 
+bool isNearlyEqual(double a, double b)
+{
+    int factor = 0.000001;
+
+    double min_a = a - (a - std::nextafter(a, std::numeric_limits<double>::lowest())) * factor;
+    double max_a = a + (std::nextafter(a, std::numeric_limits<double>::max()) - a) * factor;
+    return min_a <= b && max_a >= b;
+}
+
 void GeneticAlgorithm::initialize_population()
 {
-    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(0.0, 150.0);
-    DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(0.0, 0.001);
+    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(10.0, 150.0);
+    DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(0.00001, 0.0015);
+    DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
+    DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
     Parser::parseResultTxt("res.txt", observed_atakoy_vector);
 
     for (int i = 0; i < POPULATION_SIZE; i++)
@@ -17,6 +28,24 @@ void GeneticAlgorithm::initialize_population()
         {
             population[i].project.emitters[j].coefficient = (DISTRIBUTION_EMITTER(RNG));
         }
+        for (int j = 0; j < CHROMOSOME_LENGTH_DEMANDS; j++)
+        {
+            double current = population[i].project.demands[j].demand;
+            if (!isNearlyEqual(current, 0))
+            {
+                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                population[i].project.demands[j].demand = (DISTRIBUTION_DEMAND(RNG));
+            }
+        }
+        for (int j = 0; j < CHROMOSOME_LENGTH_NODE_DEMANDS; j++)
+        {
+            double current = population[i].project.nodes[j].demand;
+            if (!isNearlyEqual(current, 0) && population[i].project.nodes[j].type == NodeType::JUNCTION)
+            {
+                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                population[i].project.nodes[j].demand = (DISTRIBUTION_NODE_DEMAND(RNG));
+            }
+        }
     }
 }
 
@@ -29,7 +58,16 @@ void GeneticAlgorithm::calculate_fitness()
         char resultFile[100] = "";
         sprintf_s(resultFile, "resources\\result_%d.txt", i);
         std::vector<Result_Atakoy> result_atakoy_vector;
-        Parser::parseResultTxt(resultFile, result_atakoy_vector);
+        try
+        {
+            Parser::parseResultTxt(resultFile, result_atakoy_vector);
+        }
+        catch (...)
+        {
+            printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
+            population.erase(population.begin() + i);
+            continue;
+        }
         for (int j = 0; j < observed_atakoy_vector.size(); j++)
         {
             error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
@@ -76,6 +114,26 @@ void GeneticAlgorithm::mutate()
                 population[i].project.emitters[j].coefficient = newEmitterCoeff;
             }
         }
+        for (int j = 0; j < CHROMOSOME_LENGTH_DEMANDS; j++)
+        {
+            double randomNum = DISTRIBUTION_MUTATION(RNG);
+            if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.demands[j].demand, 0.0))
+            {
+                double current = population[i].project.demands[j].demand;
+                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                population[i].project.demands[j].demand = DISTRIBUTION_DEMAND(RNG);
+            }
+        }
+        for (int j = 0; j < CHROMOSOME_LENGTH_NODE_DEMANDS; j++)
+        {
+            double randomNum = DISTRIBUTION_MUTATION(RNG);
+            if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.nodes[j].demand, 0.0) && population[i].project.nodes[j].type == NodeType::JUNCTION)
+            {
+                double current = population[i].project.nodes[j].demand;
+                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                population[i].project.nodes[j].demand = DISTRIBUTION_NODE_DEMAND(RNG);
+            }
+        }
     }
 }
 
@@ -110,8 +168,12 @@ Individual GeneticAlgorithm::crossover(Individual parent1, Individual parent2)
 {
     std::uniform_int_distribution<int> distribution_pipes(0, CHROMOSOME_LENGTH_PIPES - 1);
     std::uniform_int_distribution<int> distribution_emitters(0, CHROMOSOME_LENGTH_EMITTERS - 1);
+    std::uniform_int_distribution<int> distribution_demands(0, CHROMOSOME_LENGTH_DEMANDS - 1);
+    std::uniform_int_distribution<int> distribution_node_demands(0, CHROMOSOME_LENGTH_NODE_DEMANDS - 1);
     int crossoverPoint = distribution_pipes(RNG);
     int crossoverPoint2 = distribution_emitters(RNG);
+    int crossoverPoint3 = distribution_demands(RNG);
+    int crossoverPoint4 = distribution_node_demands(RNG);
     Individual child = parent1;
     std::vector<Individual> children;
     for (int j = 0; j < crossoverPoint; j++)
@@ -129,6 +191,22 @@ Individual GeneticAlgorithm::crossover(Individual parent1, Individual parent2)
     for (int j = crossoverPoint2; j < CHROMOSOME_LENGTH_EMITTERS; j++)
     {
         child.project.emitters[j] = parent2.project.emitters[j];
+    }
+    for (int j = 0; j < crossoverPoint3; j++)
+    {
+        child.project.demands[j] = parent1.project.demands[j];
+    }
+    for (int j = crossoverPoint3; j < CHROMOSOME_LENGTH_DEMANDS; j++)
+    {
+        child.project.demands[j] = parent2.project.demands[j];
+    }
+    for (int j = 0; j < crossoverPoint4; j++)
+    {
+        child.project.nodes[j] = parent1.project.nodes[j];
+    }
+    for (int j = crossoverPoint4; j < CHROMOSOME_LENGTH_NODE_DEMANDS; j++)
+    {
+        child.project.nodes[j] = parent2.project.nodes[j];
     }
     return child;
 }
@@ -179,7 +257,7 @@ void GeneticAlgorithm::elitism()
     std::vector<Individual> elites;
     for (int i = 0; i < eliteCount; i++)
     {
-        elites.push_back(population.at(0));
+        elites.push_back(population.at(i));
     }
     for (int i = 0; i < POPULATION_SIZE / 2; i++)
     {
@@ -259,7 +337,7 @@ void GeneticAlgorithm::log_results(std::string log_file, int run, std::vector<In
                << std::setprecision(10) << std::chrono::duration_cast<std::chrono::seconds>(runtime).count() << " seconds)"
                << std::endl;
     outputFile << "Mutation rate was: "
-               << std::setprecision(10) << MUTATION_RATE << " seconds)"
+               << std::setprecision(10) << MUTATION_RATE
                << std::endl;
 
     outputFile << std::endl;
