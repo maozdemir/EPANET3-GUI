@@ -135,7 +135,6 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
                << std::left << std::setw(20) << "Category";
     outputFile << std::endl;
 
-               
     for (auto &demand : project.demands)
     {
         outputFile << std::left << std::setw(20) << demand.junction->id
@@ -147,7 +146,7 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     outputFile << std::endl;
 
     // !!! STATUS HERE !!!
-    
+
     outputFile << "[PATTERNS]" << std::endl;
     outputFile << std::left << std::setw(20) << ";ID"
                << std::left << std::setw(20) << "Status/Setting";
@@ -166,7 +165,7 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
         for (size_t i = 0; i < project.patterns.size(); i++)
         {
             double max_rows = ceil(project.patterns[i].multipliers.size() / double(elems_per_row));
-            printf("max_rows = %f\n", max_rows);
+            // printf("max_rows = %f\n", max_rows);
             for (size_t j = 0; j < max_rows; j++)
             {
                 outputFile << std::endl
@@ -205,11 +204,11 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
                << std::left << std::setw(20) << "0" << std::endl;
     outputFile << std::endl;
 
-    
-
     outputFile << "[EMITTERS]" << std::endl;
     outputFile << std::left << std::setw(20) << ";Junction"
-               << std::left << std::setw(20) << "Coefficient";
+               << std::left << std::setw(20) << "Coefficient"
+               << std::endl;
+
     for (auto &emitter : project.emitters)
     {
         outputFile << std::left << std::setw(20) << emitter.junction->id

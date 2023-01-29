@@ -16,8 +16,6 @@ int main(int, char **)
     ga.set_project(project);
     printf("Chromosome length: %d\n", ga.get_chromosome_length());
     printf("Population size: %d\n", ga.get_population_size());
-    std::vector<Result_Atakoy> result_atakoy_vector;
-    printf("Size of result: %d\n", result_atakoy_vector.size());
     ga.run();
     return 0;
 }
