@@ -402,7 +402,7 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
     while (getline(file, line))
     {
         Helpers::trim(line);
-        if (line.empty() || ctr >= 24)
+        if (line.empty() || ctr >= 4)
             break;
 
         std::istringstream iss(line);
@@ -411,7 +411,8 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
         Result_Atakoy result_atakoy;
         result_atakoy.Time = tokens[0];
         try
-        {
+        {   
+            if(tokens.size() == 1) continue;
             result_atakoy.Inc_FR_ = std::stold(tokens[1]);
             result_atakoy.ZB_FR_ = std::stold(tokens[2]);
             result_atakoy.ZB_PRV_UPS_PRES_ = std::stold(tokens[3]);
@@ -423,8 +424,9 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
             result_atakoy.Leakage_ = std::stold(tokens[8]);*/
             result_atakoy_vector.push_back(result_atakoy);
         }
-        catch (std::exception)
+        catch (...)
         {
+            continue;
         }
         ctr++;
     }

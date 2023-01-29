@@ -70,6 +70,12 @@ void GeneticAlgorithm::calculate_fitness()
         }
         for (int j = 0; j < observed_atakoy_vector.size(); j++)
         {
+            if (result_atakoy_vector.size() < 4)
+            {
+                printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
+                population.erase(population.begin() + i);
+                continue;
+            }
             error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
         }
         fitness = error / observed_atakoy_vector.size();
@@ -101,6 +107,8 @@ void GeneticAlgorithm::mutate()
             double randomNum = DISTRIBUTION_MUTATION(RNG);
             if (randomNum < MUTATION_RATE)
             {
+                double current = population[i].project.pipes[j].roughness;
+                DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
                 double newRoughness = DISTRIBUTION_ROUGHNESS(RNG);
                 population[i].project.pipes[j].roughness = newRoughness;
             }
@@ -259,19 +267,33 @@ void GeneticAlgorithm::elitism()
     {
         elites.push_back(population.at(i));
     }
-    for (int i = 0; i < POPULATION_SIZE / 2; i++)
+    for (int i = eliteCount; i < POPULATION_SIZE / 2; i++)
     {
         parents.push_back(population.at(i));
     }
-    newPopulation = elites;
 
-    while (newPopulation.size() < POPULATION_SIZE - eliteCount)
+    while (newPopulation.size() < (0.6 * (POPULATION_SIZE - eliteCount)))
     {
         // Select two parents for crossover
         int idx1 = rand() % parents.size();
         int idx2 = rand() % parents.size();
         Individual parent1 = parents[idx1];
         Individual parent2 = parents[idx2];
+
+        // Perform crossover to create an offspring
+        Individual offspring = crossover(parent1, parent2);
+
+        // Add the offspring to the new population
+        newPopulation.push_back(offspring);
+    }
+
+    while (newPopulation.size() < (POPULATION_SIZE - eliteCount))
+    {
+        // Select two parents for crossover
+        int idx1 = rand() % elites.size();
+        int idx2 = rand() % elites.size();
+        Individual parent1 = elites[idx1];
+        Individual parent2 = elites[idx2];
 
         // Perform crossover to create an offspring
         Individual offspring = crossover(parent1, parent2);

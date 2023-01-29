@@ -259,7 +259,7 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
 
     outputFile << "[TIMES]" << std::endl;
     outputFile << std::left << std::setw(20) << "Duration"
-               << std::left << std::setw(20) << "24:00" << std::endl;
+               << std::left << std::setw(20) << "4:00" << std::endl;
     outputFile << std::left << std::setw(20) << "Hydraulic Timestep"
                << std::left << std::setw(20) << "0:15" << std::endl;
     outputFile << std::left << std::setw(20) << "Quality Timestep"
