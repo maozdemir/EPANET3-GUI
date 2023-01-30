@@ -11,7 +11,7 @@ bool isNearlyEqual(double a, double b)
 
 void GeneticAlgorithm::initialize_population()
 {
-    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(10.0, 150.0);
+    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(20.0, 150.0);
     DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(0.00001, 0.0015);
     DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
     DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
@@ -47,13 +47,13 @@ void GeneticAlgorithm::initialize_population()
             }
         }
     }
+    population.at(POPULATION_SIZE - 1) = first_individual;
 }
 
 void GeneticAlgorithm::calculate_fitness()
 {
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        double fitness = 0;
         double error = 0;
         char resultFile[100] = "";
         sprintf_s(resultFile, "resources\\result_%d.txt", i);
@@ -66,24 +66,28 @@ void GeneticAlgorithm::calculate_fitness()
         {
             printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
             population.erase(population.begin() + i);
+            POPULATION_SIZE--;
+            i--;
+            continue;
+        }
+        if (result_atakoy_vector.size() < 5)
+        {
+            printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
+            population.erase(population.begin() + i);
+            POPULATION_SIZE--;
+            i--;
             continue;
         }
         for (int j = 0; j < observed_atakoy_vector.size(); j++)
         {
-            if (result_atakoy_vector.size() < 4)
-            {
-                printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
-                population.erase(population.begin() + i);
-                continue;
-            }
             error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
         }
-        fitness = error / observed_atakoy_vector.size();
-        fitness = 1 / error;
+        double fitness = 1 / (error / observed_atakoy_vector.size());
         population[i].fitness = fitness;
         printf("[ -- %d -- ] - CALCULATED FITNESS: %f\n", i, fitness);
     }
 }
+
 void GeneticAlgorithm::threader()
 {
     std::vector<std::thread> threads;
@@ -108,7 +112,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE)
             {
                 double current = population[i].project.pipes[j].roughness;
-                DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
                 double newRoughness = DISTRIBUTION_ROUGHNESS(RNG);
                 population[i].project.pipes[j].roughness = newRoughness;
             }
@@ -118,6 +122,8 @@ void GeneticAlgorithm::mutate()
             double randomNum = DISTRIBUTION_MUTATION(RNG);
             if (randomNum < MUTATION_RATE)
             {
+                double current = population[i].project.emitters[j].coefficient;
+                DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
                 double newEmitterCoeff = DISTRIBUTION_EMITTER(RNG);
                 population[i].project.emitters[j].coefficient = newEmitterCoeff;
             }
@@ -128,7 +134,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.demands[j].demand, 0.0))
             {
                 double current = population[i].project.demands[j].demand;
-                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
                 population[i].project.demands[j].demand = DISTRIBUTION_DEMAND(RNG);
             }
         }
@@ -138,7 +144,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.nodes[j].demand, 0.0) && population[i].project.nodes[j].type == NodeType::JUNCTION)
             {
                 double current = population[i].project.nodes[j].demand;
-                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(current - (current / 2), current + (current / 2));
+                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
                 population[i].project.nodes[j].demand = DISTRIBUTION_NODE_DEMAND(RNG);
             }
         }
@@ -155,14 +161,52 @@ void GeneticAlgorithm::for_each_individual(int i)
     trigger_run(fileName, result);
 }
 
+std::vector<Individual> GeneticAlgorithm::parent_selection_roulette_wheel()
+{
+    std::vector<Individual> parents;
+    double total_fitness = 0;
+    for (int i = 0; i < POPULATION_SIZE; i++)
+    {
+        total_fitness += population[i].fitness;
+    }
+
+    std::vector<double> cumulative_fitness;
+    cumulative_fitness.push_back(population[0].fitness / total_fitness);
+    for (int i = 1; i < POPULATION_SIZE; i++)
+    {
+        cumulative_fitness.push_back(cumulative_fitness[i - 1] + population[i].fitness / total_fitness);
+    }
+
+    for (int i = 0; i < POPULATION_SIZE; i++)
+    {
+        double random_value = (double)rand() / RAND_MAX;
+        for (int j = 0; j < POPULATION_SIZE; j++)
+        {
+            if (random_value <= cumulative_fitness[j])
+            {
+                Individual parent = population[j];
+                parents.push_back(parent);
+                break;
+            }
+        }
+    }
+
+    return parents;
+}
+
 std::vector<Individual> GeneticAlgorithm::parent_selection_tournament()
 {
     std::vector<Individual> parents;
 
-    for (int i = 0; i < POPULATION_SIZE; i++)
+    for (int i = 0; i < POPULATION_SIZE / 2; i++)
     {
         int idx1 = rand() % POPULATION_SIZE;
         int idx2 = rand() % POPULATION_SIZE;
+
+        while (idx1 == idx2)
+        {
+            idx2 = rand() % POPULATION_SIZE;
+        }
 
         Individual parent = population[idx1].fitness > population[idx2].fitness ? population[idx1] : population[idx2];
 
@@ -253,53 +297,48 @@ void GeneticAlgorithm::trigger_run(std::string inputFile, std::string resultFile
 
 void GeneticAlgorithm::elitism()
 {
-    // Sort the current population by fitness score in descending order
     std::sort(population.begin(), population.end(), [](const Individual &p1, const Individual &p2)
               { return p1.fitness > p2.fitness; });
     BEST_FITNESS = population[0].fitness;
 
-    // Select the top X elite individuals and add them to a new population
     std::vector<Individual> newPopulation;
-    int eliteCount = 2;
+    double eliteRatio = 0.05;
+    int eliteCount = (int)round(INITIAL_POPULATION_SIZE * eliteRatio);
     std::vector<Individual> parents;
     std::vector<Individual> elites;
     for (int i = 0; i < eliteCount; i++)
     {
         elites.push_back(population.at(i));
     }
-    for (int i = eliteCount; i < POPULATION_SIZE / 2; i++)
-    {
-        parents.push_back(population.at(i));
-    }
 
-    while (newPopulation.size() < (0.6 * (POPULATION_SIZE - eliteCount)))
+    parents = parent_selection_tournament();
+
+    while (newPopulation.size() < (0.60 * INITIAL_POPULATION_SIZE - eliteCount * 2))
     {
-        // Select two parents for crossover
         int idx1 = rand() % parents.size();
         int idx2 = rand() % parents.size();
         Individual parent1 = parents[idx1];
         Individual parent2 = parents[idx2];
 
-        // Perform crossover to create an offspring
         Individual offspring = crossover(parent1, parent2);
 
-        // Add the offspring to the new population
         newPopulation.push_back(offspring);
     }
 
-    while (newPopulation.size() < (POPULATION_SIZE - eliteCount))
+    while (newPopulation.size() < (INITIAL_POPULATION_SIZE - eliteCount * 2))
     {
-        // Select two parents for crossover
         int idx1 = rand() % elites.size();
         int idx2 = rand() % elites.size();
         Individual parent1 = elites[idx1];
         Individual parent2 = elites[idx2];
 
-        // Perform crossover to create an offspring
         Individual offspring = crossover(parent1, parent2);
 
-        // Add the offspring to the new population
         newPopulation.push_back(offspring);
+    }
+    for (int i = 0; i < eliteCount; i++)
+    {
+        newPopulation.push_back(population.at(i));
     }
     population = newPopulation;
     adaptiveMutation();

@@ -10,117 +10,117 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     outputFile << std::endl;
 
     outputFile << "[JUNCTIONS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Elev"
-               << std::left << std::setw(20) << "Demand"
-               << std::left << std::setw(20) << "Pattern" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Elev"
+               << std::left << std::setw(30) << "Demand"
+               << std::left << std::setw(30) << "Pattern" << std::endl;
 
     for (auto &node : project.nodes)
     {
         if (node.type == NodeType::JUNCTION)
         {
-            outputFile << std::left << std::setw(20) << node.id
-                       << std::left << std::setw(20) << std::fixed << std::setprecision(10) << node.elevation
-                       << std::left << std::setw(20) << std::fixed << std::setprecision(10) << node.demand
-                       << std::left << std::setw(20) << node.pattern << ";" << std::endl;
+            outputFile << std::left << std::setw(30) << node.id
+                       << std::left << std::setw(30) << std::fixed << std::setprecision(20) << node.elevation
+                       << std::left << std::setw(30) << std::fixed << std::setprecision(20) << node.demand
+                       << std::left << std::setw(30) << node.pattern << ";" << std::endl;
         }
     }
     outputFile << std::endl;
 
     outputFile << "[RESERVOIRS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Head"
-               << std::left << std::setw(20) << "Pattern" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Head"
+               << std::left << std::setw(30) << "Pattern" << std::endl;
     for (auto &node : project.nodes)
     {
         if (node.type == NodeType::RESERVOIR)
         {
-            outputFile << std::left << std::setw(20) << node.id
-                       << std::left << std::setw(20) << std::fixed << std::setprecision(10) << node.head
-                       << std::left << std::setw(20) << node.pattern << ";" << std::endl;
+            outputFile << std::left << std::setw(30) << node.id
+                       << std::left << std::setw(30) << std::fixed << std::setprecision(20) << node.head
+                       << std::left << std::setw(30) << node.pattern << ";" << std::endl;
         }
     }
     outputFile << std::endl;
 
     outputFile << "[TANKS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Head"
-               << std::left << std::setw(20) << "Pattern" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Head"
+               << std::left << std::setw(30) << "Pattern" << std::endl;
     for (auto &node : project.nodes)
     {
         if (node.type == NodeType::TANK)
         {
-            outputFile << std::left << std::setw(20) << node.id
-                       << std::left << std::setw(20) << std::fixed << std::setprecision(10) << node.head
-                       << std::left << std::setw(20) << node.pattern << ";" << std::endl;
+            outputFile << std::left << std::setw(30) << node.id
+                       << std::left << std::setw(30) << std::fixed << std::setprecision(20) << node.head
+                       << std::left << std::setw(30) << node.pattern << ";" << std::endl;
         }
     }
     outputFile << std::endl;
 
     outputFile << "[PIPES]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Node1"
-               << std::left << std::setw(20) << "Node2"
-               << std::left << std::setw(20) << "Length"
-               << std::left << std::setw(20) << "Diameter"
-               << std::left << std::setw(20) << "Roughness"
-               << std::left << std::setw(20) << "MinorLoss"
-               << std::left << std::setw(20) << "Status" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Node1"
+               << std::left << std::setw(30) << "Node2"
+               << std::left << std::setw(30) << "Length"
+               << std::left << std::setw(30) << "Diameter"
+               << std::left << std::setw(30) << "Roughness"
+               << std::left << std::setw(30) << "MinorLoss"
+               << std::left << std::setw(30) << "Status" << std::endl;
     for (auto &pipe : project.pipes)
     {
-        outputFile << std::left << std::setw(20) << pipe.id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.start->id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.end->id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.length
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.diameter
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.roughness
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << pipe.minor_loss
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << ((pipe.pipe_status == PipeStatus::OPEN) ? "Open" : "Closed") << ";"
+        outputFile << std::left << std::setw(30) << pipe.id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.start->id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.end->id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.length
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.diameter
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.roughness
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << pipe.minor_loss
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << ((pipe.pipe_status == PipeStatus::OPEN) ? "Open" : "Closed") << ";"
                    << std::endl;
     }
     outputFile << std::endl;
 
     outputFile << "[PUMPS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Node1"
-               << std::left << std::setw(20) << "Node2"
-               << std::left << std::setw(20) << "Parameters" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Node1"
+               << std::left << std::setw(30) << "Node2"
+               << std::left << std::setw(30) << "Parameters" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[VALVES]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Node1"
-               << std::left << std::setw(20) << "Node2"
-               << std::left << std::setw(20) << "Diameter"
-               << std::left << std::setw(20) << "Type"
-               << std::left << std::setw(20) << "Setting"
-               << std::left << std::setw(20) << "MinorLoss" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Node1"
+               << std::left << std::setw(30) << "Node2"
+               << std::left << std::setw(30) << "Diameter"
+               << std::left << std::setw(30) << "Type"
+               << std::left << std::setw(30) << "Setting"
+               << std::left << std::setw(30) << "MinorLoss" << std::endl;
 
-    outputFile << std::left << std::setw(20) << "1167080"
-               << std::left << std::setw(20) << "1167080-A"
-               << std::left << std::setw(20) << "1167080-B"
-               << std::left << std::setw(20) << "600"
-               << std::left << std::setw(20) << "DPRV"
-               << std::left << std::setw(20) << "FO"
-               << std::left << std::setw(20) << "44"
+    outputFile << std::left << std::setw(30) << "1167080"
+               << std::left << std::setw(30) << "1167080-A"
+               << std::left << std::setw(30) << "1167080-B"
+               << std::left << std::setw(30) << "600"
+               << std::left << std::setw(30) << "DPRV"
+               << std::left << std::setw(30) << "FO"
+               << std::left << std::setw(30) << "44"
                << std::endl;
 
-    outputFile << std::left << std::setw(20) << "1167139"
-               << std::left << std::setw(20) << "1167139-A"
-               << std::left << std::setw(20) << "1167139-B"
-               << std::left << std::setw(20) << "400"
-               << std::left << std::setw(20) << "DPRV"
-               << std::left << std::setw(20) << "FO"
-               << std::left << std::setw(20) << "42"
+    outputFile << std::left << std::setw(30) << "1167139"
+               << std::left << std::setw(30) << "1167139-A"
+               << std::left << std::setw(30) << "1167139-B"
+               << std::left << std::setw(30) << "400"
+               << std::left << std::setw(30) << "DPRV"
+               << std::left << std::setw(30) << "FO"
+               << std::left << std::setw(30) << "42"
                << std::endl;
 
-    outputFile << std::left << std::setw(20) << "1167144"
-               << std::left << std::setw(20) << "1167144-A"
-               << std::left << std::setw(20) << "1167144-B"
-               << std::left << std::setw(20) << "400"
-               << std::left << std::setw(20) << "PRV"
-               << std::left << std::setw(20) << "1000"
-               << std::left << std::setw(20) << "0"
+    outputFile << std::left << std::setw(30) << "1167144"
+               << std::left << std::setw(30) << "1167144-A"
+               << std::left << std::setw(30) << "1167144-B"
+               << std::left << std::setw(30) << "400"
+               << std::left << std::setw(30) << "PRV"
+               << std::left << std::setw(30) << "1000"
+               << std::left << std::setw(30) << "0"
                << std::endl;
     outputFile << std::endl;
 
@@ -129,18 +129,18 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
 
     // !!! DEMANDS HERE !!!
     outputFile << "[DEMANDS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Junction"
-               << std::left << std::setw(20) << "Demand"
-               << std::left << std::setw(20) << "Pattern"
-               << std::left << std::setw(20) << "Category";
+    outputFile << std::left << std::setw(30) << ";Junction"
+               << std::left << std::setw(30) << "Demand"
+               << std::left << std::setw(30) << "Pattern"
+               << std::left << std::setw(30) << "Category";
     outputFile << std::endl;
 
     for (auto &demand : project.demands)
     {
-        outputFile << std::left << std::setw(20) << demand.junction->id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << demand.demand
-                   << std::left << std::setw(20) << demand.pattern->id
-                   << std::left << std::setw(20) << demand.category
+        outputFile << std::left << std::setw(30) << demand.junction->id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << demand.demand
+                   << std::left << std::setw(30) << demand.pattern->id
+                   << std::left << std::setw(30) << demand.category
                    << std::endl;
     }
     outputFile << std::endl;
@@ -148,17 +148,17 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     // !!! STATUS HERE !!!
 
     outputFile << "[PATTERNS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "Status/Setting";
-    outputFile << std::left << std::setw(20) << "1167144"
-               << std::left << std::setw(20) << "Open";
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "Status/Setting";
+    outputFile << std::left << std::setw(30) << "1167144"
+               << std::left << std::setw(30) << "Open";
     outputFile << std::endl;
 
     // !!! PATTERNS HERE !!!
 
     outputFile << "[PATTERNS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Node"
-               << std::left << std::setw(20) << "Multipliers";
+    outputFile << std::left << std::setw(30) << ";Node"
+               << std::left << std::setw(30) << "Multipliers";
 
     {
         size_t elems_per_row = 6;
@@ -169,10 +169,10 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
             for (size_t j = 0; j < max_rows; j++)
             {
                 outputFile << std::endl
-                           << std::left << std::setw(20) << project.patterns[i].id;
+                           << std::left << std::setw(30) << project.patterns[i].id;
                 for (size_t k = j * elems_per_row; k < ((j + 1) * elems_per_row) && k < project.patterns[i].multipliers.size(); k++)
                 {
-                    outputFile << std::left << std::setw(20) << project.patterns[i].multipliers[k];
+                    outputFile << std::left << std::setw(30) << project.patterns[i].multipliers[k];
                 }
             }
         }
@@ -183,9 +183,9 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     // !!! LEAKAGE HERE !!!
 
     outputFile << "[CURVES]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";ID"
-               << std::left << std::setw(20) << "X-Value"
-               << std::left << std::setw(20) << "Y-Value" << std::endl;
+    outputFile << std::left << std::setw(30) << ";ID"
+               << std::left << std::setw(30) << "X-Value"
+               << std::left << std::setw(30) << "Y-Value" << std::endl;
 
     // !!! CURVES HERE !!!
 
@@ -196,43 +196,43 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     outputFile << std::endl;
 
     outputFile << "[ENERGY]" << std::endl;
-    outputFile << std::left << std::setw(20) << "Global Efficiency"
-               << std::left << std::setw(20) << "75" << std::endl;
-    outputFile << std::left << std::setw(20) << "Global Price"
-               << std::left << std::setw(20) << "0" << std::endl;
-    outputFile << std::left << std::setw(20) << "Demand Charge"
-               << std::left << std::setw(20) << "0" << std::endl;
+    outputFile << std::left << std::setw(30) << "Global Efficiency"
+               << std::left << std::setw(30) << "75" << std::endl;
+    outputFile << std::left << std::setw(30) << "Global Price"
+               << std::left << std::setw(30) << "0" << std::endl;
+    outputFile << std::left << std::setw(30) << "Demand Charge"
+               << std::left << std::setw(30) << "0" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[EMITTERS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Junction"
-               << std::left << std::setw(20) << "Coefficient"
+    outputFile << std::left << std::setw(30) << ";Junction"
+               << std::left << std::setw(30) << "Coefficient"
                << std::endl;
 
     for (auto &emitter : project.emitters)
     {
-        outputFile << std::left << std::setw(20) << emitter.junction->id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(10) << emitter.coefficient
+        outputFile << std::left << std::setw(30) << emitter.junction->id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(20) << emitter.coefficient
                    << std::endl;
     }
     outputFile << std::endl;
 
     outputFile << "[QUALITY]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Node"
-               << std::left << std::setw(20) << "InitQual" << std::endl;
+    outputFile << std::left << std::setw(30) << ";Node"
+               << std::left << std::setw(30) << "InitQual" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[SOURCES]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Node"
-               << std::left << std::setw(20) << "Type"
-               << std::left << std::setw(20) << "Quality"
-               << std::left << std::setw(20) << "Pattern" << std::endl;
+    outputFile << std::left << std::setw(30) << ";Node"
+               << std::left << std::setw(30) << "Type"
+               << std::left << std::setw(30) << "Quality"
+               << std::left << std::setw(30) << "Pattern" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[REACTIONS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Type"
-               << std::left << std::setw(20) << "Pipe/Tank"
-               << std::left << std::setw(20) << "Coefficient" << std::endl;
+    outputFile << std::left << std::setw(30) << ";Type"
+               << std::left << std::setw(30) << "Pipe/Tank"
+               << std::left << std::setw(30) << "Coefficient" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[REACTIONS]" << std::endl;
@@ -253,49 +253,49 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     outputFile << std::endl;
 
     outputFile << "[MIXING]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Tank"
-               << std::left << std::setw(20) << "Model" << std::endl;
+    outputFile << std::left << std::setw(30) << ";Tank"
+               << std::left << std::setw(30) << "Model" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[TIMES]" << std::endl;
-    outputFile << std::left << std::setw(20) << "Duration"
-               << std::left << std::setw(20) << "4:00" << std::endl;
-    outputFile << std::left << std::setw(20) << "Hydraulic Timestep"
-               << std::left << std::setw(20) << "0:15" << std::endl;
-    outputFile << std::left << std::setw(20) << "Quality Timestep"
-               << std::left << std::setw(20) << "0:00" << std::endl;
-    outputFile << std::left << std::setw(20) << "Pattern Timestep"
-               << std::left << std::setw(20) << "0:15" << std::endl;
-    outputFile << std::left << std::setw(20) << "Pattern Start"
-               << std::left << std::setw(20) << "0:00" << std::endl;
-    outputFile << std::left << std::setw(20) << "Report Timestep"
-               << std::left << std::setw(20) << "1:00" << std::endl;
-    outputFile << std::left << std::setw(20) << "Report Start"
-               << std::left << std::setw(20) << "0:00" << std::endl;
-    outputFile << std::left << std::setw(20) << "Start ClockTime"
-               << std::left << std::setw(20) << "12 am" << std::endl;
-    outputFile << std::left << std::setw(20) << "Statistic"
-               << std::left << std::setw(20) << "NONE" << std::endl;
+    outputFile << std::left << std::setw(30) << "Duration"
+               << std::left << std::setw(30) << "5:00" << std::endl;
+    outputFile << std::left << std::setw(30) << "Hydraulic Timestep"
+               << std::left << std::setw(30) << "0:15" << std::endl;
+    outputFile << std::left << std::setw(30) << "Quality Timestep"
+               << std::left << std::setw(30) << "0:00" << std::endl;
+    outputFile << std::left << std::setw(30) << "Pattern Timestep"
+               << std::left << std::setw(30) << "0:15" << std::endl;
+    outputFile << std::left << std::setw(30) << "Pattern Start"
+               << std::left << std::setw(30) << "0:00" << std::endl;
+    outputFile << std::left << std::setw(30) << "Report Timestep"
+               << std::left << std::setw(30) << "1:00" << std::endl;
+    outputFile << std::left << std::setw(30) << "Report Start"
+               << std::left << std::setw(30) << "0:00" << std::endl;
+    outputFile << std::left << std::setw(30) << "Start ClockTime"
+               << std::left << std::setw(30) << "12 am" << std::endl;
+    outputFile << std::left << std::setw(30) << "Statistic"
+               << std::left << std::setw(30) << "NONE" << std::endl;
     outputFile << std::endl;
 
     outputFile << "[REPORT]" << std::endl;
-    outputFile << std::left << std::setw(20) << "Status"
-               << std::left << std::setw(20) << "No"
+    outputFile << std::left << std::setw(30) << "Status"
+               << std::left << std::setw(30) << "No"
                << std::endl;
-    outputFile << std::left << std::setw(20) << ";Trials"
-               << std::left << std::setw(20) << "Yes"
+    outputFile << std::left << std::setw(30) << ";Trials"
+               << std::left << std::setw(30) << "Yes"
                << std::endl;
-    outputFile << std::left << std::setw(20) << "Summary"
-               << std::left << std::setw(20) << "No"
+    outputFile << std::left << std::setw(30) << "Summary"
+               << std::left << std::setw(30) << "No"
                << std::endl;
-    outputFile << std::left << std::setw(20) << "Page"
-               << std::left << std::setw(20) << "0"
+    outputFile << std::left << std::setw(30) << "Page"
+               << std::left << std::setw(30) << "0"
                << std::endl;
-    outputFile << std::left << std::setw(20) << ";Nodes"
-               << std::left << std::setw(20) << "All"
+    outputFile << std::left << std::setw(30) << ";Nodes"
+               << std::left << std::setw(30) << "All"
                << std::endl;
-    outputFile << std::left << std::setw(20) << ";Links"
-               << std::left << std::setw(20) << "All"
+    outputFile << std::left << std::setw(30) << ";Links"
+               << std::left << std::setw(30) << "All"
                << std::endl;
     outputFile << std::endl;
 
@@ -390,17 +390,17 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
     outputFile << std::endl;
 
     outputFile << "[COORDINATES]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";Node"
-               << std::left << std::setw(20) << "X-Coord"
-               << std::left << std::setw(20) << "Y-Coord"
+    outputFile << std::left << std::setw(30) << ";Node"
+               << std::left << std::setw(30) << "X-Coord"
+               << std::left << std::setw(30) << "Y-Coord"
                << std::endl;
 
     for (auto &node : project.nodes)
     {
 
-        outputFile << std::left << std::setw(20) << node.id
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(3) << node.x_coord
-                   << std::left << std::setw(20) << std::fixed << std::setprecision(3) << node.y_coord
+        outputFile << std::left << std::setw(30) << node.id
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(3) << node.x_coord
+                   << std::left << std::setw(30) << std::fixed << std::setprecision(3) << node.y_coord
                    << std::endl;
     }
     outputFile << std::endl;
@@ -411,28 +411,28 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
 
     outputFile
         << "[LABELS]" << std::endl;
-    outputFile << std::left << std::setw(20) << ";X-Coord"
-               << std::left << std::setw(20) << "Y-Coord"
-               << std::left << std::setw(20) << "Label & Anchor Node"
+    outputFile << std::left << std::setw(30) << ";X-Coord"
+               << std::left << std::setw(30) << "Y-Coord"
+               << std::left << std::setw(30) << "Label & Anchor Node"
                << std::endl;
     outputFile << std::endl;
 
     outputFile << "[BACKDROP]" << std::endl;
-    outputFile << std::left << std::setw(20) << "DIMENSIONS"
-               << std::left << std::setw(20) << "402027.617"
-               << std::left << std::setw(20) << "4538122.089"
-               << std::left << std::setw(20) << "405357.875"
-               << std::left << std::setw(20) << "4541011.644"
+    outputFile << std::left << std::setw(30) << "DIMENSIONS"
+               << std::left << std::setw(30) << "402027.617"
+               << std::left << std::setw(30) << "4538122.089"
+               << std::left << std::setw(30) << "405357.875"
+               << std::left << std::setw(30) << "4541011.644"
                << std::endl;
-    outputFile << std::left << std::setw(20) << "UNITS"
-               << std::left << std::setw(20) << "None"
+    outputFile << std::left << std::setw(30) << "UNITS"
+               << std::left << std::setw(30) << "None"
                << std::endl;
-    outputFile << std::left << std::setw(20) << "FILE"
-               << std::left << std::setw(20) << ""
+    outputFile << std::left << std::setw(30) << "FILE"
+               << std::left << std::setw(30) << ""
                << std::endl;
-    outputFile << std::left << std::setw(20) << "OFFSET"
-               << std::left << std::setw(20) << "0.00"
-               << std::left << std::setw(20) << "0.00"
+    outputFile << std::left << std::setw(30) << "OFFSET"
+               << std::left << std::setw(30) << "0.00"
+               << std::left << std::setw(30) << "0.00"
                << std::endl;
     outputFile << std::endl;
 

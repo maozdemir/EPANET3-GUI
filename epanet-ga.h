@@ -26,14 +26,17 @@ struct Individual
 class GeneticAlgorithm
 {
 public:
-    int POPULATION_SIZE = 100;
+    int POPULATION_SIZE = 150;
+    int INITIAL_POPULATION_SIZE = 150;
+
+
     int CHROMOSOME_LENGTH_PIPES = 100;
     int CHROMOSOME_LENGTH_EMITTERS = 100;
     int CHROMOSOME_LENGTH_DEMANDS = 100;
     int CHROMOSOME_LENGTH_NODE_DEMANDS = 100;
     double MUTATION_RATE = 0.1;
     double ELITISM_RATE = 0.2;
-    int MAX_RUNS = 30;
+    int MAX_RUNS = 50;
     double BEST_FITNESS = 0;
     double MIN_MUTATION_RATE = 0.1;
     double MAX_MUTATION_RATE = 0.4;
@@ -76,6 +79,8 @@ public:
     }
     void mutate();
     std::vector<Individual> parent_selection_tournament();
+    std::vector<Individual> parent_selection_roulette_wheel();
+
     void elitism();
     Individual crossover(Individual parent1, Individual parent2);
     void breed_from_elites();

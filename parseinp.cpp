@@ -402,7 +402,7 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
     while (getline(file, line))
     {
         Helpers::trim(line);
-        if (line.empty() || ctr >= 4)
+        if (line.empty() || ctr >= 5)
             break;
 
         std::istringstream iss(line);
