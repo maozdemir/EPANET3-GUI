@@ -11,9 +11,9 @@ bool isNearlyEqual(double a, double b)
 
 void GeneticAlgorithm::initialize_population()
 {
-    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(20.0, 150.0);
+    DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(10.0, 150.0);
     DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(0.00001, 0.0015);
-    DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
+    DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(0.00001, 0.1);
     DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(0.0001, 1);
     Parser::parseResultTxt("res.txt", observed_atakoy_vector);
 
@@ -47,7 +47,7 @@ void GeneticAlgorithm::initialize_population()
             }
         }
     }
-    population.at(POPULATION_SIZE - 1) = first_individual;
+    //population.at(POPULATION_SIZE - 1) = first_individual;
 }
 
 void GeneticAlgorithm::calculate_fitness()
@@ -70,7 +70,7 @@ void GeneticAlgorithm::calculate_fitness()
             i--;
             continue;
         }
-        if (result_atakoy_vector.size() < 5)
+        if (result_atakoy_vector.size() < 24)
         {
             printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
             population.erase(population.begin() + i);
@@ -78,11 +78,11 @@ void GeneticAlgorithm::calculate_fitness()
             i--;
             continue;
         }
-        for (int j = 0; j < observed_atakoy_vector.size(); j++)
+        for (int j = 0; j < result_atakoy_vector.size(); j++)
         {
             error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
         }
-        double fitness = 1 / (error / observed_atakoy_vector.size());
+        double fitness = 1 / (error / result_atakoy_vector.size());
         population[i].fitness = fitness;
         printf("[ -- %d -- ] - CALCULATED FITNESS: %f\n", i, fitness);
     }

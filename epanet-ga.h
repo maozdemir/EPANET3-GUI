@@ -26,9 +26,8 @@ struct Individual
 class GeneticAlgorithm
 {
 public:
-    int POPULATION_SIZE = 150;
-    int INITIAL_POPULATION_SIZE = 150;
-
+    int POPULATION_SIZE = 200;
+    int INITIAL_POPULATION_SIZE = 200;
 
     int CHROMOSOME_LENGTH_PIPES = 100;
     int CHROMOSOME_LENGTH_EMITTERS = 100;
@@ -36,7 +35,7 @@ public:
     int CHROMOSOME_LENGTH_NODE_DEMANDS = 100;
     double MUTATION_RATE = 0.1;
     double ELITISM_RATE = 0.2;
-    int MAX_RUNS = 50;
+    int MAX_RUNS = 200;
     double BEST_FITNESS = 0;
     double MIN_MUTATION_RATE = 0.1;
     double MAX_MUTATION_RATE = 0.4;
