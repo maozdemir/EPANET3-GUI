@@ -47,59 +47,80 @@ void GeneticAlgorithm::initialize_population()
             }
         }
     }
-    //population.at(POPULATION_SIZE - 1) = first_individual;
+    population.at(POPULATION_SIZE - 1) = first_individual;
+}
+
+void GeneticAlgorithm::create_population_files()
+{
+    int i = 0;
 }
 
 void GeneticAlgorithm::calculate_fitness()
 {
-    for (int i = 0; i < POPULATION_SIZE; i++)
+    for (int i = 0; i < INITIAL_POPULATION_SIZE; i++)
     {
         double error = 0;
-        char resultFile[100] = "";
-        sprintf_s(resultFile, "resources\\result_%d.txt", i);
+        char resultFile[200] = "";
+        sprintf(resultFile, "resources/result_%d.txt", i);
         std::vector<Result_Atakoy> result_atakoy_vector;
+        bool prt_bool = false;
         try
         {
-            Parser::parseResultTxt(resultFile, result_atakoy_vector);
+            prt_bool = Parser::parseResultTxt(resultFile, result_atakoy_vector);
         }
         catch (...)
         {
-            printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
-            population.erase(population.begin() + i);
-            POPULATION_SIZE--;
-            i--;
+            fprintf(stdout, "%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
+            population[i].fitness = 0.f;
+            // i--;
             continue;
         }
-        if (result_atakoy_vector.size() < 24)
+        if (result_atakoy_vector.size() != 24 || !prt_bool)
         {
-            printf("%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
-            population.erase(population.begin() + i);
-            POPULATION_SIZE--;
-            i--;
+            fprintf(stdout, "%d (%s) is corrupted. Removing from the population.\n", i, resultFile);
+            population[i].fitness = 0.f;
+
+            // i--;
             continue;
         }
-        for (int j = 0; j < result_atakoy_vector.size(); j++)
+        else
         {
-            error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
+            for (int j = 0; j < result_atakoy_vector.size(); j++)
+            {
+                error += abs(result_atakoy_vector[j].Inc_FR_ - observed_atakoy_vector[j].Inc_FR_);
+                error += abs(result_atakoy_vector[j].ZB_FR_ - observed_atakoy_vector[j].ZB_FR_);
+                error += abs(result_atakoy_vector[j].ZB_PRV_UPS_PRES_ - observed_atakoy_vector[j].ZB_PRV_UPS_PRES_);
+                error += abs(result_atakoy_vector[j].ZB_MIN_PRES_ - observed_atakoy_vector[j].ZB_MIN_PRES_);
+            }
+            double fitness = 1 / (error / (result_atakoy_vector.size() * 4));
+            population[i].fitness = fitness;
+            // fprintf(stdout, "[ -- %d -- ] - CALCULATED FITNESS: %f\n", i, fitness);
         }
-        double fitness = 1 / (error / result_atakoy_vector.size());
-        population[i].fitness = fitness;
-        printf("[ -- %d -- ] - CALCULATED FITNESS: %f\n", i, fitness);
     }
 }
 
 void GeneticAlgorithm::threader()
 {
-    std::vector<std::thread> threads;
-    printf("Populating treads...\n");
-    for (int i = 0; i < POPULATION_SIZE; ++i)
+    std::cout << "Populating treads...\n";
+    int created_threads = 0;
+    int max_threads = 70;
+    int i = 0;
+    int loops = int(ceil((double)POPULATION_SIZE / (double)max_threads));
+    for (int loop = 0; loop < loops; loop++)
     {
-        threads.emplace_back(std::thread(&GeneticAlgorithm::for_each_individual, this, i));
-        printf("Thread %d started.\n", i);
+        std::vector<std::thread> threads;
+        for (i = created_threads; i < (loop + 1) * max_threads && i < POPULATION_SIZE; i++)
+        {
+            threads.emplace_back(std::thread(&GeneticAlgorithm::for_each_individual, this, i));
+            // std::cout << "Thread " << i << " started.\n";
+        }
+        std::cout << "Total threads: " << threads.size();
+        for (auto &th : threads)
+        {
+            th.join();
+        }
+        created_threads = i;
     }
-    printf("Total threads: %d\n", threads.size());
-    for (auto &th : threads)
-        th.join();
 }
 
 void GeneticAlgorithm::mutate()
@@ -112,7 +133,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE)
             {
                 double current = population[i].project.pipes[j].roughness;
-                DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
+                DISTRIBUTION_ROUGHNESS = std::uniform_real_distribution<double>(std::max((double)10, current - (current * 0.25)), std::min((double)150, current + (current * 0.25)));
                 double newRoughness = DISTRIBUTION_ROUGHNESS(RNG);
                 population[i].project.pipes[j].roughness = newRoughness;
             }
@@ -123,7 +144,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE)
             {
                 double current = population[i].project.emitters[j].coefficient;
-                DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
+                DISTRIBUTION_EMITTER = std::uniform_real_distribution<double>(std::max((double)0.000001, current - (current * 0.25)), std::min((double)0.0015, current + (current * 0.25)));
                 double newEmitterCoeff = DISTRIBUTION_EMITTER(RNG);
                 population[i].project.emitters[j].coefficient = newEmitterCoeff;
             }
@@ -134,7 +155,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.demands[j].demand, 0.0))
             {
                 double current = population[i].project.demands[j].demand;
-                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
+                DISTRIBUTION_DEMAND = std::uniform_real_distribution<double>(std::max((double)0.00001, current - (current * 0.25)), std::min((double)0.1, current + (current * 0.25)));
                 population[i].project.demands[j].demand = DISTRIBUTION_DEMAND(RNG);
             }
         }
@@ -144,7 +165,7 @@ void GeneticAlgorithm::mutate()
             if (randomNum < MUTATION_RATE && !isNearlyEqual(population[i].project.nodes[j].demand, 0.0) && population[i].project.nodes[j].type == NodeType::JUNCTION)
             {
                 double current = population[i].project.nodes[j].demand;
-                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(current - (current * 0.25), current + (current * 0.25));
+                DISTRIBUTION_NODE_DEMAND = std::uniform_real_distribution<double>(std::max((double)0.0001, current - (current * 0.25)), std::min((double)1, current + (current * 0.25)));
                 population[i].project.nodes[j].demand = DISTRIBUTION_NODE_DEMAND(RNG);
             }
         }
@@ -153,10 +174,10 @@ void GeneticAlgorithm::mutate()
 
 void GeneticAlgorithm::for_each_individual(int i)
 {
-    char fileName[100] = "";
-    char result[100] = "";
-    sprintf_s(fileName, "resources\\ga_inp_%d.inp", i);
-    sprintf_s(result, "resources\\result_%d.txt", i);
+    char fileName[200] = "";
+    char result[200] = "";
+    sprintf(fileName, "resources/ga_inp_%d.inp", i);
+    sprintf(result, "resources/result_%d.txt", i);
     Saver::saveInputFile(fileName, population[i].project);
     trigger_run(fileName, result);
 }
@@ -171,24 +192,23 @@ std::vector<Individual> GeneticAlgorithm::parent_selection_roulette_wheel()
     }
 
     std::vector<double> cumulative_fitness;
-    cumulative_fitness.push_back(population[0].fitness / total_fitness);
-    for (int i = 1; i < POPULATION_SIZE; i++)
-    {
-        cumulative_fitness.push_back(cumulative_fitness[i - 1] + population[i].fitness / total_fitness);
-    }
-
+    cumulative_fitness.reserve(POPULATION_SIZE);
+    double fitness_sum = 0;
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        double random_value = (double)rand() / RAND_MAX;
-        for (int j = 0; j < POPULATION_SIZE; j++)
-        {
-            if (random_value <= cumulative_fitness[j])
-            {
-                Individual parent = population[j];
-                parents.push_back(parent);
-                break;
-            }
-        }
+        fitness_sum += population[i].fitness / total_fitness;
+        cumulative_fitness.push_back(fitness_sum);
+    }
+
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    std::mt19937_64 rng(std::random_device{}());
+
+    for (int i = 0; i < POPULATION_SIZE / 2; i++)
+    {
+        double random_value = distribution(rng);
+        int parent_index = std::lower_bound(cumulative_fitness.begin(), cumulative_fitness.end(), random_value) - cumulative_fitness.begin();
+        Individual parent = population[parent_index];
+        parents.push_back(parent);
     }
 
     return parents;
@@ -271,16 +291,23 @@ void GeneticAlgorithm::run()
     {
         auto start = std::chrono::high_resolution_clock::now();
 
-        threader();
-        calculate_fitness();
-        printf("Ran for %d/%d runs\n", num_runs + 1, MAX_RUNS);
+        try
+        {
+            threader();
+            calculate_fitness();
+        }
+        catch (std::exception &e)
+        {
+            std::cerr << "Exception caught : " << e.what() << std::endl;
+        }
+        fprintf(stdout, "Ran for %d/%d runs\n", num_runs + 1, MAX_RUNS);
 
         auto end = std::chrono::high_resolution_clock::now();
 
         log_results("results.txt", num_runs, population, end - start);
         // system("pause");
         std::vector<Individual> parents = parent_selection_tournament();
-        printf("Parents: %d\n", parents.size());
+        fprintf(stdout, "Parents: %d\n", parents.size());
         elitism();
         // breed_from_elites();
         // mutate();
@@ -291,7 +318,7 @@ void GeneticAlgorithm::run()
 
 void GeneticAlgorithm::trigger_run(std::string inputFile, std::string resultFile)
 {
-    std::string command = "resources\\run-epanet3.exe " + inputFile + " resources\\report.rpt " + resultFile;
+    std::string command = "resources/run-epanet3 " + inputFile + " " + inputFile + ".rst " + resultFile + " > /dev/null";
     system(command.c_str());
 }
 
@@ -313,10 +340,14 @@ void GeneticAlgorithm::elitism()
 
     parents = parent_selection_tournament();
 
-    while (newPopulation.size() < (0.60 * INITIAL_POPULATION_SIZE - eliteCount * 2))
+    while (newPopulation.size() < (INITIAL_POPULATION_SIZE - eliteCount * 1))
     {
         int idx1 = rand() % parents.size();
         int idx2 = rand() % parents.size();
+        while (idx1 == idx2)
+        {
+            idx2 = rand() % parents.size();
+        }
         Individual parent1 = parents[idx1];
         Individual parent2 = parents[idx2];
 
@@ -325,21 +356,25 @@ void GeneticAlgorithm::elitism()
         newPopulation.push_back(offspring);
     }
 
-    while (newPopulation.size() < (INITIAL_POPULATION_SIZE - eliteCount * 2))
+    /*while (newPopulation.size() < (INITIAL_POPULATION_SIZE - eliteCount * 1))
     {
         int idx1 = rand() % elites.size();
         int idx2 = rand() % elites.size();
+        while (idx1 == idx2)
+        {
+            idx2 = rand() % elites.size();
+        }
         Individual parent1 = elites[idx1];
         Individual parent2 = elites[idx2];
 
         Individual offspring = crossover(parent1, parent2);
 
         newPopulation.push_back(offspring);
-    }
-    for (int i = 0; i < eliteCount; i++)
+    }*/
+    /*for (int i = 0; i < eliteCount; i++)
     {
         newPopulation.push_back(population.at(i));
-    }
+    }*/
     population = newPopulation;
     adaptiveMutation();
     for (int i = 0; i < eliteCount; i++)

@@ -8,16 +8,19 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <iterator>
 #include "helpers.h"
 
 class Parser
 {
 public:
     static void parseInputFile(std::string inputFile, Project &project);
+    static void parsePatterns(Project &project, std::string inputFile);
+    static void parseDemands(Project &project, std::string inputFile);
+    static void parseNodes(Project &project, std::string inputFile);
     // !!! IMPROPER, PURPOSE SPECIFIC FUNCTION  BEGINS  !!!
-    static void parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector);
+    static bool parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector);
     // !!! IMPROPER, PURPOSE SPECIFIC FUNCTION ENDS     !!!
 private:
-    static void parsePatterns(Project &project, std::string inputFile);
 };
 #endif

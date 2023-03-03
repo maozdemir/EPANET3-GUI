@@ -2,13 +2,21 @@
 
 void Parser::parseInputFile(std::string inputFile, Project &project)
 {
-    parsePatterns(project, inputFile);
+    bool IS_JUNCTIONS_FOUND = false;
+    bool IS_RESERVOIRS_FOUND = false;
+    bool IS_COORDINATES_FOUND = false;
+    bool IS_PIPES_FOUND = false;
+    bool IS_EMITTERS_FOUND = false;
+    bool IS_DEMANDS_FOUND = false;
+    bool IS_REPORT_FOUND = false;
+    bool IS_PATTERNS_FOUND = false;
+    bool IS_OPTIONS_FOUND = false;
     std::ifstream file(inputFile);
     std::string line;
     while (getline(file, line))
     {
         Helpers::trim(line);
-        if (line == "[TITLE]")
+        /*if (line == "[TITLE]")
         {
             getline(file, line);
             /*std::istringstream iss(line);
@@ -20,9 +28,9 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
             std::istringstream iss2(line);
             std::string date;
             iss2 >> date;
-            title.date = date.substr(5);*/
-        }
-        if (line == "[JUNCTIONS]")
+            title.date = date.substr(5);
+        }*/
+        if (line == "[JUNCTIONS]" && !IS_JUNCTIONS_FOUND)
         {
             printf("FOUND JUNCTIONS\n");
             while (getline(file, line))
@@ -57,8 +65,10 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 node.type = NodeType::JUNCTION;
                 project.nodes.push_back(node);
             }
+            IS_JUNCTIONS_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
-        if (line == "[RESERVOIRS]")
+        if (line == "[RESERVOIRS]" && !IS_RESERVOIRS_FOUND)
         {
             printf("FOUND RESERVOIRS\n");
             while (getline(file, line))
@@ -93,8 +103,10 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 node.type = NodeType::RESERVOIR;
                 project.nodes.push_back(node);
             }
+            IS_RESERVOIRS_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
-        if (line == "[COORDINATES]")
+        if (line == "[COORDINATES]" && !IS_COORDINATES_FOUND)
         {
             while (getline(file, line))
             {
@@ -117,8 +129,10 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                     it->y_coord = std::stold(tokens[2]);
                 }
             }
+            IS_COORDINATES_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
-        if (line == "[PIPES]")
+        if (line == "[PIPES]" && !IS_PIPES_FOUND)
         {
             printf("FOUND PIPES\n");
             while (getline(file, line))
@@ -159,8 +173,10 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                     project.pipes.push_back(pipe);
                 }
             }
+            IS_PIPES_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
-        if (line == "[EMITTERS]")
+        if (line == "[EMITTERS]" && !IS_EMITTERS_FOUND)
         {
             printf("FOUND EMITTERS\n");
             while (getline(file, line))
@@ -190,9 +206,11 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                     project.emitters.push_back(emitter);
                 }
             }
+            IS_EMITTERS_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
 
-        if (line == "[DEMANDS]")
+        if (line == "[DEMANDS]" && !IS_DEMANDS_FOUND && IS_PATTERNS_FOUND && IS_JUNCTIONS_FOUND && IS_RESERVOIRS_FOUND)
         {
             printf("FOUND DEMANDS\n");
             while (getline(file, line))
@@ -226,9 +244,11 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                     project.demands.push_back(_demand);
                 }
             }
+            IS_DEMANDS_FOUND = true;
             printf("Found %d Demands\n", (int)project.demands.size());
+            file.seekg(0, std::ios::beg);
         }
-        if (line == "[REPORT]")
+        if (line == "[REPORT]" && !IS_REPORT_FOUND)
         {
             while (getline(file, line))
             {
@@ -245,9 +265,68 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 std::string option = tokens[0];
                 std::string value = tokens[1];
             }
+            IS_REPORT_FOUND = true;
         }
 
-        if (line == "[OPTIONS]")
+        if (line == "[PATTERNS]" && !IS_PATTERNS_FOUND)
+        {
+
+            printf("FOUND PATTERNS\n");
+            while (getline(file, line))
+            {
+                Helpers::trim(line);
+                if (line[0] == ';')
+                    continue;
+                if (line.empty())
+                    break;
+
+                std::istringstream iss(line);
+                std::vector<std::string> tokens;
+                std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
+
+                std::string pattern_id = tokens[0];
+
+                auto it = std::find_if(project.patterns.begin(), project.patterns.end(), [&pattern_id](const Pattern &n)
+                                       { return n.id == pattern_id; });
+
+                if (it != project.patterns.end())
+                {
+                    for (int token = 1; token < tokens.size(); ++token)
+                    {
+                        try
+                        {
+                            (*it).multipliers.push_back(std::stold(tokens[token]));
+                        }
+                        catch (...)
+                        {
+                        }
+                    }
+                }
+                else
+                {
+                    std::vector<long double> multipliers;
+                    for (int token = 1; token < tokens.size(); ++token)
+                    {
+                        try
+                        {
+                            multipliers.push_back(std::stold(tokens[token]));
+                        }
+                        catch (...)
+                        {
+                        }
+                    }
+                    Pattern pattern;
+                    pattern.id = pattern_id;
+                    pattern.multipliers = multipliers;
+                    project.patterns.push_back(pattern);
+                }
+            }
+            IS_PATTERNS_FOUND = true;
+            printf("Read %d patterns\n", (int)project.patterns.size());
+            file.seekg(0, std::ios::beg);
+        }
+
+        if (line == "[OPTIONS]" && !IS_OPTIONS_FOUND)
         {
             Options options;
             while (getline(file, line))
@@ -323,77 +402,14 @@ void Parser::parseInputFile(std::string inputFile, Project &project)
                 }
             }
             project.options = options;
-        }
-    }
-}
-
-void Parser::parsePatterns(Project &project, std::string inputFile)
-{
-
-    std::ifstream file(inputFile);
-    std::string line;
-    while (getline(file, line))
-    {
-        if (line == "[PATTERNS]")
-        {
-
-            printf("FOUND PATTERNS\n");
-            while (getline(file, line))
-            {
-                Helpers::trim(line);
-                if (line[0] == ';')
-                    continue;
-                if (line.empty())
-                    break;
-
-                std::istringstream iss(line);
-                std::vector<std::string> tokens;
-                std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
-
-                std::string pattern_id = tokens[0];
-
-                auto it = std::find_if(project.patterns.begin(), project.patterns.end(), [&pattern_id](const Pattern &n)
-                                       { return n.id == pattern_id; });
-
-                if (it != project.patterns.end())
-                {
-                    for (int token = 1; std::cmp_less(token, tokens.size()); ++token)
-                    {
-                        try
-                        {
-                            (*it).multipliers.push_back(std::stold(tokens[token]));
-                        }
-                        catch (...)
-                        {
-                        }
-                    }
-                }
-                else
-                {
-                    std::vector<long double> multipliers;
-                    for (int token = 1; std::cmp_less(token, tokens.size()); ++token)
-                    {
-                        try
-                        {
-                            multipliers.push_back(std::stold(tokens[token]));
-                        }
-                        catch (...)
-                        {
-                        }
-                    }
-                    Pattern pattern;
-                    pattern.id = pattern_id;
-                    pattern.multipliers = multipliers;
-                    project.patterns.push_back(pattern);
-                }
-            }
-            printf("Read %d patterns\n", (int)project.patterns.size());
+            IS_OPTIONS_FOUND = true;
+            file.seekg(0, std::ios::beg);
         }
     }
 }
 
 // !!! BAD IMPLEMENTATION !!!
-void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector)
+bool Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &result_atakoy_vector)
 {
     std::ifstream file(resultFile);
     std::string line;
@@ -409,25 +425,29 @@ void Parser::parseResultTxt(std::string resultFile, std::vector<Result_Atakoy> &
         std::vector<std::string> tokens;
         std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
         Result_Atakoy result_atakoy;
-        result_atakoy.Time = tokens[0];
         try
-        {   
-            if(tokens.size() == 1) continue;
+        {
+            if (tokens.size() == 1)
+                continue;
+            result_atakoy.Time = tokens[0];
             result_atakoy.Inc_FR_ = std::stold(tokens[1]);
             result_atakoy.ZB_FR_ = std::stold(tokens[2]);
             result_atakoy.ZB_PRV_UPS_PRES_ = std::stold(tokens[3]);
-            /*result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stold(tokens[4]);
+            result_atakoy.ZB_PRV_DOWNS_PRES_ = std::stold(tokens[4]);
 
             result_atakoy.ZB_MAX_PRES_ = std::stold(tokens[5]);
             result_atakoy.ZB_AVE_PRES_ = std::stold(tokens[6]);
             result_atakoy.ZB_MIN_PRES_ = std::stold(tokens[7]);
-            result_atakoy.Leakage_ = std::stold(tokens[8]);*/
+            result_atakoy.Leakage_ = std::stold(tokens[8]);
             result_atakoy_vector.push_back(result_atakoy);
         }
         catch (...)
         {
-            continue;
+            return false;
         }
         ctr++;
     }
+    if (result_atakoy_vector.size() < 24)
+        return false;
+    return true;
 }

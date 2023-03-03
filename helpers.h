@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <locale>
 
 class Helpers

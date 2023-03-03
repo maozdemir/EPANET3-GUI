@@ -26,21 +26,20 @@ struct Individual
 class GeneticAlgorithm
 {
 public:
-    int POPULATION_SIZE = 200;
-    int INITIAL_POPULATION_SIZE = 200;
+    int POPULATION_SIZE = 2800;
+    int INITIAL_POPULATION_SIZE = 2800;
 
     int CHROMOSOME_LENGTH_PIPES = 100;
     int CHROMOSOME_LENGTH_EMITTERS = 100;
     int CHROMOSOME_LENGTH_DEMANDS = 100;
     int CHROMOSOME_LENGTH_NODE_DEMANDS = 100;
-    double MUTATION_RATE = 0.1;
+    double MUTATION_RATE = 0.7;
     double ELITISM_RATE = 0.2;
-    int MAX_RUNS = 200;
+    int MAX_RUNS = 2000;
     double BEST_FITNESS = 0;
     double MIN_MUTATION_RATE = 0.1;
-    double MAX_MUTATION_RATE = 0.4;
-    double ADAPTATION_FACTOR = 0.05;
-
+    double MAX_MUTATION_RATE = 1.0;
+    double ADAPTATION_FACTOR = 0.1;
 
     Individual first_individual;
     std::vector<Individual> population;
@@ -53,7 +52,7 @@ public:
 
     std::vector<Result_Atakoy> observed_atakoy_vector;
 
-
+    void create_population_files();
     int get_chromosome_length()
     {
         return CHROMOSOME_LENGTH_PIPES;

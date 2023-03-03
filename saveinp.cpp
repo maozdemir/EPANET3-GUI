@@ -147,11 +147,11 @@ void Saver::saveInputFile(std::string saveFile, Project &project)
 
     // !!! STATUS HERE !!!
 
-    outputFile << "[PATTERNS]" << std::endl;
+    outputFile << "[STATUS]" << std::endl;
     outputFile << std::left << std::setw(30) << ";ID"
-               << std::left << std::setw(30) << "Status/Setting";
+               << std::left << std::setw(30) << "Status/Setting" << std::endl;
     outputFile << std::left << std::setw(30) << "1167144"
-               << std::left << std::setw(30) << "Open";
+               << std::left << std::setw(30) << "Open" << std::endl;;
     outputFile << std::endl;
 
     // !!! PATTERNS HERE !!!
